@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Spring Cloud on Gold</title>
+    <link>https://goldpumpkin.life/tags/spring-cloud/</link>
+    <description>Recent content in Spring Cloud on Gold</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <copyright>&lt;a href=&#34;https://creativecommons.org/licenses/by-nc/4.0/&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;CC BY-NC 4.0&lt;/a&gt;</copyright>
+    <lastBuildDate>Tue, 21 Jul 2020 00:00:00 +0000</lastBuildDate><atom:link href="https://goldpumpkin.life/tags/spring-cloud/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>SpringCloud 整合 Zuul 源码分析</title>
+      <link>https://goldpumpkin.life/posts/2020/07/springcloud-%E6%95%B4%E5%90%88-zuul-%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/</link>
+      <pubDate>Tue, 21 Jul 2020 00:00:00 +0000</pubDate>
+      
+      <guid>https://goldpumpkin.life/posts/2020/07/springcloud-%E6%95%B4%E5%90%88-zuul-%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/</guid>
+      <description>&lt;p&gt;今天我们分析下 SpringCloud 是怎么整合 Zuul 的。&lt;/p&gt;</description>
+    </item>
+    
+  </channel>
+</rss>

@@ -1,0 +1,660 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="ie=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="author" content="">
+<meta name="description" content="Zuul 的源码读过吗？让我们一起看看吧
+" />
+<meta name="keywords" content=", java" />
+<meta name="robots" content="noodp" />
+<meta name="theme-color" content="" />
+<link rel="canonical" href="https://goldpumpkin.life/posts/2020/07/zuul-%E7%9A%84%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/" />
+
+
+    <title>
+        
+            Zuul 的源码分析 :: Gold  — Just wanna fight with everyone else
+        
+    </title>
+
+
+
+
+
+<link rel="stylesheet" href="https://goldpumpkin.life/main.949191c1dcc9c4a887997048b240354e47152016d821198f89448496ba42e491.css" integrity="sha256-lJGRwdzJxKiHmXBIskA1TkcVIBbYIRmPiUSElrpC5JE=">
+
+
+
+    <link rel="apple-touch-icon" sizes="180x180" href="https://goldpumpkin.life/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="https://goldpumpkin.life/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="https://goldpumpkin.life/favicon-16x16.png">
+    <link rel="manifest" href="https://goldpumpkin.life/site.webmanifest">
+    <link rel="mask-icon" href="https://goldpumpkin.life/safari-pinned-tab.svg" color="">
+    <link rel="shortcut icon" href="https://goldpumpkin.life/favicon.ico">
+    <meta name="msapplication-TileColor" content="">
+
+
+<meta itemprop="name" content="Zuul 的源码分析">
+<meta itemprop="description" content="Zuul 的源码读过吗？让我们一起看看吧"><meta itemprop="datePublished" content="2020-07-21T00:00:00+00:00" />
+<meta itemprop="dateModified" content="2020-07-21T00:00:00+00:00" />
+<meta itemprop="wordCount" content="693"><meta itemprop="image" content="https://goldpumpkin.life"/>
+<meta itemprop="keywords" content="java," />
+<meta name="twitter:card" content="summary_large_image"/>
+<meta name="twitter:image" content="https://goldpumpkin.life"/>
+
+<meta name="twitter:title" content="Zuul 的源码分析"/>
+<meta name="twitter:description" content="Zuul 的源码读过吗？让我们一起看看吧"/>
+
+
+
+    <meta property="og:title" content="Zuul 的源码分析" />
+<meta property="og:description" content="Zuul 的源码读过吗？让我们一起看看吧" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://goldpumpkin.life/posts/2020/07/zuul-%E7%9A%84%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/" /><meta property="og:image" content="https://goldpumpkin.life"/><meta property="article:section" content="posts" />
+<meta property="article:published_time" content="2020-07-21T00:00:00+00:00" />
+<meta property="article:modified_time" content="2020-07-21T00:00:00+00:00" />
+
+
+
+
+
+
+
+    <meta property="article:published_time" content="2020-07-21 00:00:00 &#43;0000 UTC" />
+
+
+
+
+
+
+
+
+
+
+
+    </head>
+
+    
+        <body>
+    
+    
+        <div class="container">
+            <header class="header">
+    <span class="header__inner">
+        <a href="https://goldpumpkin.life/" style="text-decoration: none;">
+    <div class="logo">
+        
+            <span class="logo__mark">&gt;</span>
+            <span class="logo__text ">
+                $ cd /home/</span>
+            <span class="logo__cursor" style=
+                  "
+                   
+                   ">
+            </span>
+        
+    </div>
+</a>
+
+
+        <span class="header__right">
+            
+                <nav class="menu">
+    <ul class="menu__inner"><li><a href="https://goldpumpkin.life/about/">About</a></li><li><a href="https://goldpumpkin.life/posts/">Posts</a></li>
+    </ul>
+</nav>
+
+                <span class="menu-trigger">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                        <path d="M0 0h24v24H0z" fill="none"/>
+                        <path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/>
+                    </svg>
+                </span>
+            
+        </span>
+    </span>
+</header>
+
+
+            <div class="content">
+                
+  <main class="post">
+
+    <div class="post-info">
+      <p>
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-clock">
+          <circle cx="12" cy="12" r="10"></circle>
+          <polyline points="12 6 12 12 16 14"></polyline>
+        </svg>
+        4 minutes
+
+        
+      </p>
+    </div>
+
+    <article>
+      <h1 class="post-title">
+        <a href="https://goldpumpkin.life/posts/2020/07/zuul-%E7%9A%84%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/">Zuul 的源码分析</a>
+      </h1>
+
+      
+
+      
+
+      
+
+      <div class="post-content">
+        <p>Zuul 的源码读过吗？让我们一起看看吧</p>
+<h2 id="目标">目标</h2>
+<p>明确Zuul的执行流程和重要类的分析</p>
+<h2 id="zuul过滤器的生命周期">Zuul过滤器的生命周期</h2>
+<p><img src="http://qiniu.5ires.top/uPic/view.png" alt="preview"></p>
+<h2 id="源码分析">源码分析</h2>
+<h3 id="zuul怎么拦截我们的请求">zuul怎么拦截我们的请求？</h3>
+<p><code>ZuulServletFilter</code> - 继承 Filter | <code>ZuulServlet</code> - 继承 HttpServlet
+可以通过这两个类，让Zuul接管请求。由于他们的逻辑基本一致，下面用<code>ZuulServletFilter</code>来分析</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#75715e">/**
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">* Zuul核心处理类，拦截请求
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">**/</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">ZuulServletFilter</span> <span style="color:#66d9ef">implements</span> Filter <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> ZuulRunner zuulRunner<span style="color:#f92672">;</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>		<span style="color:#75715e">// 省略...
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">@Override</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">doFilter</span><span style="color:#f92672">(</span>ServletRequest servletRequest<span style="color:#f92672">,</span> ServletResponse servletResponse<span style="color:#f92672">,</span> FilterChain filterChain<span style="color:#f92672">)</span> <span style="color:#66d9ef">throws</span> IOException<span style="color:#f92672">,</span> ServletException <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">try</span> <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>         		<span style="color:#75715e">// 初始化requests和responses到RequestContext中，详见ZuulRunner#init
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>            init<span style="color:#f92672">((</span>HttpServletRequest<span style="color:#f92672">)</span> servletRequest<span style="color:#f92672">,</span> <span style="color:#f92672">(</span>HttpServletResponse<span style="color:#f92672">)</span> servletResponse<span style="color:#f92672">);</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">try</span> <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>              	<span style="color:#75715e">// 执行 filterType=pre 的过滤器
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>                preRouting<span style="color:#f92672">();</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#f92672">}</span> <span style="color:#66d9ef">catch</span> <span style="color:#f92672">(</span>ZuulException e<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>                <span style="color:#75715e">// 执行 filterType=error 的过滤器
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>                error<span style="color:#f92672">(</span>e<span style="color:#f92672">);</span>
+</span></span><span style="display:flex;"><span>                postRouting<span style="color:#f92672">();</span>
+</span></span><span style="display:flex;"><span>                <span style="color:#66d9ef">return</span><span style="color:#f92672">;</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#f92672">}</span>
+</span></span><span style="display:flex;"><span>            
+</span></span><span style="display:flex;"><span>            <span style="color:#75715e">// Only forward onto to the chain if a zuul response is not being sent
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>            <span style="color:#66d9ef">if</span> <span style="color:#f92672">(!</span>RequestContext<span style="color:#f92672">.</span><span style="color:#a6e22e">getCurrentContext</span><span style="color:#f92672">().</span><span style="color:#a6e22e">sendZuulResponse</span><span style="color:#f92672">())</span> <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>                filterChain<span style="color:#f92672">.</span><span style="color:#a6e22e">doFilter</span><span style="color:#f92672">(</span>servletRequest<span style="color:#f92672">,</span> servletResponse<span style="color:#f92672">);</span>
+</span></span><span style="display:flex;"><span>                <span style="color:#66d9ef">return</span><span style="color:#f92672">;</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#f92672">}</span>
+</span></span><span style="display:flex;"><span>            
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">try</span> <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>	              <span style="color:#75715e">// 执行 filterType=route 的过滤器
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>                routing<span style="color:#f92672">();</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#f92672">}</span> <span style="color:#66d9ef">catch</span> <span style="color:#f92672">(</span>ZuulException e<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>                error<span style="color:#f92672">(</span>e<span style="color:#f92672">);</span>
+</span></span><span style="display:flex;"><span>                postRouting<span style="color:#f92672">();</span>
+</span></span><span style="display:flex;"><span>                <span style="color:#66d9ef">return</span><span style="color:#f92672">;</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#f92672">}</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">try</span> <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>              	<span style="color:#75715e">// 执行 filterType=post 的过滤器
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>                postRouting<span style="color:#f92672">();</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#f92672">}</span> <span style="color:#66d9ef">catch</span> <span style="color:#f92672">(</span>ZuulException e<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>                error<span style="color:#f92672">(</span>e<span style="color:#f92672">);</span>
+</span></span><span style="display:flex;"><span>                <span style="color:#66d9ef">return</span><span style="color:#f92672">;</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#f92672">}</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">}</span> <span style="color:#66d9ef">catch</span> <span style="color:#f92672">(</span>Throwable e<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>            error<span style="color:#f92672">(</span><span style="color:#66d9ef">new</span> ZuulException<span style="color:#f92672">(</span>e<span style="color:#f92672">,</span> 500<span style="color:#f92672">,</span> <span style="color:#e6db74">&#34;UNCAUGHT_EXCEPTION_FROM_FILTER_&#34;</span> <span style="color:#f92672">+</span> e<span style="color:#f92672">.</span><span style="color:#a6e22e">getClass</span><span style="color:#f92672">().</span><span style="color:#a6e22e">getName</span><span style="color:#f92672">()));</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">}</span> <span style="color:#66d9ef">finally</span> <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>          	<span style="color:#75715e">// 清空线程变量
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>            RequestContext<span style="color:#f92672">.</span><span style="color:#a6e22e">getCurrentContext</span><span style="color:#f92672">().</span><span style="color:#a6e22e">unset</span><span style="color:#f92672">();</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">}</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">}</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">}</span>
+</span></span></code></pre></div><p>以上方法核心步骤：</p>
+<ul>
+<li>
+<p>初始化请求上下文<code>RequestContext</code></p>
+</li>
+<li>
+<p>执行 pre、route、post过滤器，如果有错，执行error过滤器</p>
+</li>
+</ul>
+<p><code>ZuulRunner</code> - 初始化<code>RequestContext</code>中的requests和responses并转发Filter相关方法到<code>FilterProcessor</code></p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">ZuulRunner</span> <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">boolean</span> bufferRequests<span style="color:#f92672">;</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">// 省略...
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">/**
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">     * 初始化RequestContext：生成请求和响应wapper保存
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">     * RequestContext：继承了ConcurrentHashMap，是一个Map容器，主要存放请求、响应供ZuulFilters使用。
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">     */</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">init</span><span style="color:#f92672">(</span>HttpServletRequest servletRequest<span style="color:#f92672">,</span> HttpServletResponse servletResponse<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        RequestContext ctx <span style="color:#f92672">=</span> RequestContext<span style="color:#f92672">.</span><span style="color:#a6e22e">getCurrentContext</span><span style="color:#f92672">();</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">if</span> <span style="color:#f92672">(</span>bufferRequests<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>            ctx<span style="color:#f92672">.</span><span style="color:#a6e22e">setRequest</span><span style="color:#f92672">(</span><span style="color:#66d9ef">new</span> HttpServletRequestWrapper<span style="color:#f92672">(</span>servletRequest<span style="color:#f92672">));</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">}</span> <span style="color:#66d9ef">else</span> <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>            ctx<span style="color:#f92672">.</span><span style="color:#a6e22e">setRequest</span><span style="color:#f92672">(</span>servletRequest<span style="color:#f92672">);</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">}</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        ctx<span style="color:#f92672">.</span><span style="color:#a6e22e">setResponse</span><span style="color:#f92672">(</span><span style="color:#66d9ef">new</span> HttpServletResponseWrapper<span style="color:#f92672">(</span>servletResponse<span style="color:#f92672">));</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">}</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">/**
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">     * executes &#34;post&#34; filterType  ZuulFilters
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">     *
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">     * @throws ZuulException
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">     */</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">postRoute</span><span style="color:#f92672">()</span> <span style="color:#66d9ef">throws</span> ZuulException <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>        FilterProcessor<span style="color:#f92672">.</span><span style="color:#a6e22e">getInstance</span><span style="color:#f92672">().</span><span style="color:#a6e22e">postRoute</span><span style="color:#f92672">();</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">}</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>   <span style="color:#75715e">// 省略route() preRoute() error() 方法
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#f92672">}</span>	
+</span></span></code></pre></div><p>以上看出Zuul是通过<code>ZuulServletFilter</code>以filter的方式（或者以<code>ZuulServlet</code>以servlet的方式）拦截或者承接我们的请求，并在<code>doFilter</code>方法（<code>service</code>方法）中处理各种类型的ZuulFilters，并通过<code>ZuulRunner</code>转发到<code>FilterProcessor</code>中找到对应的filter并执行相关逻辑。整个大致流程比较简单清晰，类似于设计模式中的门面模式。</p>
+<p>​	其中，<code>RequestContext</code>是存在<code>ThreadLocal</code>当中，可以注意到当Zuul处理完毕之后，会清空线程变量<code>RequestContext</code>,以防止内存泄露。</p>
+<h3 id="filterprocessor怎么找到相应zuulfilters并执行呢"><code>FilterProcessor</code>怎么找到相应ZuulFilters并执行呢？</h3>
+<p><code>FilterProcessor</code> - 执行filters的核心类</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#75715e">/**
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">* 执行对应阶段ZuulFilters
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">* sType：即为filterType，例如&#34;post&#34;、&#34;pre&#34;、&#34;route&#34;、&#34;error&#34;
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">* 
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">*/</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">public</span> Object <span style="color:#a6e22e">runFilters</span><span style="color:#f92672">(</span>String sType<span style="color:#f92672">)</span> <span style="color:#66d9ef">throws</span> Throwable <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">if</span> <span style="color:#f92672">(</span>RequestContext<span style="color:#f92672">.</span><span style="color:#a6e22e">getCurrentContext</span><span style="color:#f92672">().</span><span style="color:#a6e22e">debugRouting</span><span style="color:#f92672">())</span> <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>            Debug<span style="color:#f92672">.</span><span style="color:#a6e22e">addRoutingDebug</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;Invoking {&#34;</span> <span style="color:#f92672">+</span> sType <span style="color:#f92672">+</span> <span style="color:#e6db74">&#34;} type filters&#34;</span><span style="color:#f92672">);</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">}</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">boolean</span> bResult <span style="color:#f92672">=</span> <span style="color:#66d9ef">false</span><span style="color:#f92672">;</span>
+</span></span><span style="display:flex;"><span>			  <span style="color:#75715e">// 获取已经注册了的ZuulFilters，根本是从FilterRegistry中获取。并且list是已经排好序的，
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>  			<span style="color:#75715e">// 根据给定的filterOrder
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>        List<span style="color:#f92672">&lt;</span>ZuulFilter<span style="color:#f92672">&gt;</span> list <span style="color:#f92672">=</span> FilterLoader<span style="color:#f92672">.</span><span style="color:#a6e22e">getInstance</span><span style="color:#f92672">().</span><span style="color:#a6e22e">getFiltersByType</span><span style="color:#f92672">(</span>sType<span style="color:#f92672">);</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">if</span> <span style="color:#f92672">(</span>list <span style="color:#f92672">!=</span> <span style="color:#66d9ef">null</span><span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">for</span> <span style="color:#f92672">(</span><span style="color:#66d9ef">int</span> i <span style="color:#f92672">=</span> 0<span style="color:#f92672">;</span> i <span style="color:#f92672">&lt;</span> list<span style="color:#f92672">.</span><span style="color:#a6e22e">size</span><span style="color:#f92672">();</span> i<span style="color:#f92672">++)</span> <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>                ZuulFilter zuulFilter <span style="color:#f92672">=</span> list<span style="color:#f92672">.</span><span style="color:#a6e22e">get</span><span style="color:#f92672">(</span>i<span style="color:#f92672">);</span>
+</span></span><span style="display:flex;"><span>                <span style="color:#75715e">// 执行ZuulFilter逻辑并
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>                Object result <span style="color:#f92672">=</span> processZuulFilter<span style="color:#f92672">(</span>zuulFilter<span style="color:#f92672">);</span>
+</span></span><span style="display:flex;"><span>                <span style="color:#66d9ef">if</span> <span style="color:#f92672">(</span>result <span style="color:#f92672">!=</span> <span style="color:#66d9ef">null</span> <span style="color:#f92672">&amp;&amp;</span> result <span style="color:#66d9ef">instanceof</span> Boolean<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>                    bResult <span style="color:#f92672">|=</span> <span style="color:#f92672">((</span>Boolean<span style="color:#f92672">)</span> result<span style="color:#f92672">);</span>
+</span></span><span style="display:flex;"><span>                <span style="color:#f92672">}</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#f92672">}</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">}</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> bResult<span style="color:#f92672">;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">}</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">/**
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">* 执行ZuulFilter，并把执行情况组合成ZuulFilterResult并返回
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">*/</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">public</span> Object <span style="color:#a6e22e">processZuulFilter</span><span style="color:#f92672">(</span>ZuulFilter filter<span style="color:#f92672">)</span> <span style="color:#66d9ef">throws</span> ZuulException <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#75715e">// 省略部分代码...
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>  <span style="color:#75715e">// 具体执行在 ZuulFilter#runFilter
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>  ZuulFilterResult result <span style="color:#f92672">=</span> filter<span style="color:#f92672">.</span><span style="color:#a6e22e">runFilter</span><span style="color:#f92672">();</span>
+</span></span><span style="display:flex;"><span>  ExecutionStatus s <span style="color:#f92672">=</span> result<span style="color:#f92672">.</span><span style="color:#a6e22e">getStatus</span><span style="color:#f92672">();</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>  <span style="color:#66d9ef">switch</span> <span style="color:#f92672">(</span>s<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">case</span> FAILED<span style="color:#f92672">:</span>
+</span></span><span style="display:flex;"><span>      t <span style="color:#f92672">=</span> result<span style="color:#f92672">.</span><span style="color:#a6e22e">getException</span><span style="color:#f92672">();</span>
+</span></span><span style="display:flex;"><span>      ctx<span style="color:#f92672">.</span><span style="color:#a6e22e">addFilterExecutionSummary</span><span style="color:#f92672">(</span>filterName<span style="color:#f92672">,</span> ExecutionStatus<span style="color:#f92672">.</span><span style="color:#a6e22e">FAILED</span><span style="color:#f92672">.</span><span style="color:#a6e22e">name</span><span style="color:#f92672">(),</span> execTime<span style="color:#f92672">);</span>
+</span></span><span style="display:flex;"><span>      <span style="color:#66d9ef">break</span><span style="color:#f92672">;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">case</span> SUCCESS<span style="color:#f92672">:</span>
+</span></span><span style="display:flex;"><span>      o <span style="color:#f92672">=</span> result<span style="color:#f92672">.</span><span style="color:#a6e22e">getResult</span><span style="color:#f92672">();</span>
+</span></span><span style="display:flex;"><span>      ctx<span style="color:#f92672">.</span><span style="color:#a6e22e">addFilterExecutionSummary</span><span style="color:#f92672">(</span>filterName<span style="color:#f92672">,</span> ExecutionStatus<span style="color:#f92672">.</span><span style="color:#a6e22e">SUCCESS</span><span style="color:#f92672">.</span><span style="color:#a6e22e">name</span><span style="color:#f92672">(),</span> execTime<span style="color:#f92672">);</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">default</span><span style="color:#f92672">:</span>
+</span></span><span style="display:flex;"><span>      <span style="color:#66d9ef">break</span><span style="color:#f92672">;</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">}</span>
+</span></span><span style="display:flex;"><span>            
+</span></span><span style="display:flex;"><span>  <span style="color:#66d9ef">if</span> <span style="color:#f92672">(</span>t <span style="color:#f92672">!=</span> <span style="color:#66d9ef">null</span><span style="color:#f92672">)</span> <span style="color:#66d9ef">throw</span> t<span style="color:#f92672">;</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>  <span style="color:#75715e">// 统计每个filter的每次执行情况
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>  usageNotifier<span style="color:#f92672">.</span><span style="color:#a6e22e">notify</span><span style="color:#f92672">(</span>filter<span style="color:#f92672">,</span> s<span style="color:#f92672">);</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#66d9ef">return</span> o<span style="color:#f92672">;</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">}</span>
+</span></span></code></pre></div><p>以上方法核心步骤：</p>
+<ul>
+<li>
+<p>按序执行各阶段ZuulFilters</p>
+</li>
+<li>
+<p>记录ZuulFilter执行结果</p>
+</li>
+<li>
+<p>统计执行情况</p>
+</li>
+</ul>
+<p><code>ZuulFilter</code> - 最基本的Filter抽象类，自定义的Filter是继承此Filter，<code>FilterProcessor</code>执行Filter最终会转发到此类的<code>runFilter</code>方法</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span> <span style="color:#66d9ef">public</span> ZuulFilterResult <span style="color:#a6e22e">runFilter</span><span style="color:#f92672">()</span> <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>   <span style="color:#75715e">// 执行结果以及执行成功与否情况包装成ZuulFilterResult返回
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>   ZuulFilterResult zr <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> ZuulFilterResult<span style="color:#f92672">();</span>
+</span></span><span style="display:flex;"><span>   <span style="color:#75715e">// 此filter是已被archaius禁用 「archaius是netflix开源的动态属性配置框架」
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>   <span style="color:#66d9ef">if</span> <span style="color:#f92672">(!</span>isFilterDisabled<span style="color:#f92672">())</span> <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>     <span style="color:#75715e">// 执行自定filter的shouldFilter方法判断是否执行此filter
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>     <span style="color:#66d9ef">if</span> <span style="color:#f92672">(</span>shouldFilter<span style="color:#f92672">())</span> <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>       Tracer t <span style="color:#f92672">=</span> TracerFactory<span style="color:#f92672">.</span><span style="color:#a6e22e">instance</span><span style="color:#f92672">().</span><span style="color:#a6e22e">startMicroTracer</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;ZUUL::&#34;</span> <span style="color:#f92672">+</span> <span style="color:#66d9ef">this</span><span style="color:#f92672">.</span><span style="color:#a6e22e">getClass</span><span style="color:#f92672">().</span><span style="color:#a6e22e">getSimpleName</span><span style="color:#f92672">());</span>
+</span></span><span style="display:flex;"><span>       <span style="color:#66d9ef">try</span> <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>         Object res <span style="color:#f92672">=</span> run<span style="color:#f92672">();</span>
+</span></span><span style="display:flex;"><span>         zr <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> ZuulFilterResult<span style="color:#f92672">(</span>res<span style="color:#f92672">,</span> ExecutionStatus<span style="color:#f92672">.</span><span style="color:#a6e22e">SUCCESS</span><span style="color:#f92672">);</span>
+</span></span><span style="display:flex;"><span>       <span style="color:#f92672">}</span> <span style="color:#66d9ef">catch</span> <span style="color:#f92672">(</span>Throwable e<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>         t<span style="color:#f92672">.</span><span style="color:#a6e22e">setName</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;ZUUL::&#34;</span> <span style="color:#f92672">+</span> <span style="color:#66d9ef">this</span><span style="color:#f92672">.</span><span style="color:#a6e22e">getClass</span><span style="color:#f92672">().</span><span style="color:#a6e22e">getSimpleName</span><span style="color:#f92672">()</span> <span style="color:#f92672">+</span> <span style="color:#e6db74">&#34; failed&#34;</span><span style="color:#f92672">);</span>
+</span></span><span style="display:flex;"><span>         zr <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> ZuulFilterResult<span style="color:#f92672">(</span>ExecutionStatus<span style="color:#f92672">.</span><span style="color:#a6e22e">FAILED</span><span style="color:#f92672">);</span>
+</span></span><span style="display:flex;"><span>         zr<span style="color:#f92672">.</span><span style="color:#a6e22e">setException</span><span style="color:#f92672">(</span>e<span style="color:#f92672">);</span>
+</span></span><span style="display:flex;"><span>       <span style="color:#f92672">}</span> <span style="color:#66d9ef">finally</span> <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>         t<span style="color:#f92672">.</span><span style="color:#a6e22e">stopAndLog</span><span style="color:#f92672">();</span>
+</span></span><span style="display:flex;"><span>       <span style="color:#f92672">}</span>
+</span></span><span style="display:flex;"><span>     <span style="color:#f92672">}</span> <span style="color:#66d9ef">else</span> <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>       zr <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> ZuulFilterResult<span style="color:#f92672">(</span>ExecutionStatus<span style="color:#f92672">.</span><span style="color:#a6e22e">SKIPPED</span><span style="color:#f92672">);</span>
+</span></span><span style="display:flex;"><span>     <span style="color:#f92672">}</span>
+</span></span><span style="display:flex;"><span>   <span style="color:#f92672">}</span>
+</span></span><span style="display:flex;"><span>   <span style="color:#66d9ef">return</span> zr<span style="color:#f92672">;</span>
+</span></span><span style="display:flex;"><span> <span style="color:#f92672">}</span>
+</span></span></code></pre></div><p>Zuul把ZuulFilters存储在类<code>FilterLoader</code>属性名为<code>hashFiltersByType</code>的<code>ConcurrentHashMap</code>中，key为filterType(eg: pre、route、post、error或者自定义)</p>
+<p>那么问题来了，这些存在于<code>FilterLoader</code>的ZuulFilter是怎么加载进来的呢？</p>
+<h3 id="zuulfilter的加载">ZuulFIlter的加载</h3>
+<p>通过层层搜索，找到类<code>FilterFileManager</code> ，在此类初始化的时候，会到指定路径下读取指定文件。同时在初始时，会创建守护线程来定时扫描加载文件。</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">FilterFileManager</span> <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#75715e">// 省略代码...
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>
+</span></span><span style="display:flex;"><span>  <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">init</span><span style="color:#f92672">(</span><span style="color:#66d9ef">int</span> pollingIntervalSeconds<span style="color:#f92672">,</span> String<span style="color:#f92672">...</span> directories<span style="color:#f92672">)</span> <span style="color:#66d9ef">throws</span> Exception<span style="color:#f92672">,</span> IllegalAccessException<span style="color:#f92672">,</span> InstantiationException <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> <span style="color:#f92672">(</span>INSTANCE <span style="color:#f92672">==</span> <span style="color:#66d9ef">null</span><span style="color:#f92672">)</span> INSTANCE <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> FilterFileManager<span style="color:#f92672">();</span>
+</span></span><span style="display:flex;"><span>    INSTANCE<span style="color:#f92672">.</span><span style="color:#a6e22e">aDirectories</span> <span style="color:#f92672">=</span> directories<span style="color:#f92672">;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">// 守护线程的轮询间隔时间
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>    INSTANCE<span style="color:#f92672">.</span><span style="color:#a6e22e">pollingIntervalSeconds</span> <span style="color:#f92672">=</span> pollingIntervalSeconds<span style="color:#f92672">;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">// 读取并处理文件
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>    INSTANCE<span style="color:#f92672">.</span><span style="color:#a6e22e">manageFiles</span><span style="color:#f92672">();</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">// 开启文件扫描的守护线程
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>    INSTANCE<span style="color:#f92672">.</span><span style="color:#a6e22e">startPoller</span><span style="color:#f92672">();</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">}</span>
+</span></span><span style="display:flex;"><span>  
+</span></span><span style="display:flex;"><span>  <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">manageFiles</span><span style="color:#f92672">()</span> <span style="color:#66d9ef">throws</span> Exception<span style="color:#f92672">,</span> IllegalAccessException<span style="color:#f92672">,</span> InstantiationException <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#75715e">// 读取文件
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>				List<span style="color:#f92672">&lt;</span>File<span style="color:#f92672">&gt;</span> aFiles <span style="color:#f92672">=</span> getFiles<span style="color:#f92672">();</span>
+</span></span><span style="display:flex;"><span>    		<span style="color:#75715e">// 通过FilterLoader来处理文件
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>        processGroovyFiles<span style="color:#f92672">(</span>aFiles<span style="color:#f92672">);</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">}</span>
+</span></span><span style="display:flex;"><span>  
+</span></span><span style="display:flex;"><span>  <span style="color:#75715e">// 扫描指定目录下的指定类型文件
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>  List<span style="color:#f92672">&lt;</span>File<span style="color:#f92672">&gt;</span> <span style="color:#a6e22e">getFiles</span><span style="color:#f92672">()</span> <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>    List<span style="color:#f92672">&lt;</span>File<span style="color:#f92672">&gt;</span> list <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> ArrayList<span style="color:#f92672">&lt;</span>File<span style="color:#f92672">&gt;();</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">for</span> <span style="color:#f92672">(</span>String sDirectory <span style="color:#f92672">:</span> aDirectories<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>      <span style="color:#66d9ef">if</span> <span style="color:#f92672">(</span>sDirectory <span style="color:#f92672">!=</span> <span style="color:#66d9ef">null</span><span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>        File directory <span style="color:#f92672">=</span> getDirectory<span style="color:#f92672">(</span>sDirectory<span style="color:#f92672">);</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#75715e">// Zuul有自带类`GroovyFileFilter`是扫描 .groovy 文件.
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>        File<span style="color:#f92672">[]</span> aFiles <span style="color:#f92672">=</span> directory<span style="color:#f92672">.</span><span style="color:#a6e22e">listFiles</span><span style="color:#f92672">(</span>FILENAME_FILTER<span style="color:#f92672">);</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">if</span> <span style="color:#f92672">(</span>aFiles <span style="color:#f92672">!=</span> <span style="color:#66d9ef">null</span><span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>          list<span style="color:#f92672">.</span><span style="color:#a6e22e">addAll</span><span style="color:#f92672">(</span>Arrays<span style="color:#f92672">.</span><span style="color:#a6e22e">asList</span><span style="color:#f92672">(</span>aFiles<span style="color:#f92672">));</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">}</span>
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">}</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">}</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> list<span style="color:#f92672">;</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">}</span>
+</span></span><span style="display:flex;"><span>  
+</span></span><span style="display:flex;"><span>  <span style="color:#75715e">// 开启守护线程进行轮询
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>  <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">startPoller</span><span style="color:#f92672">()</span> <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>    poller <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> Thread<span style="color:#f92672">(</span><span style="color:#e6db74">&#34;GroovyFilterFileManagerPoller&#34;</span><span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>      <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">run</span><span style="color:#f92672">()</span> <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">while</span> <span style="color:#f92672">(</span>bRunning<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>          <span style="color:#66d9ef">try</span> <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>            sleep<span style="color:#f92672">(</span>pollingIntervalSeconds <span style="color:#f92672">*</span> 1000<span style="color:#f92672">);</span>
+</span></span><span style="display:flex;"><span>            manageFiles<span style="color:#f92672">();</span>
+</span></span><span style="display:flex;"><span>          <span style="color:#f92672">}</span> <span style="color:#66d9ef">catch</span> <span style="color:#f92672">(</span>Exception e<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>            e<span style="color:#f92672">.</span><span style="color:#a6e22e">printStackTrace</span><span style="color:#f92672">();</span>
+</span></span><span style="display:flex;"><span>          <span style="color:#f92672">}</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">}</span>
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">}</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">};</span>
+</span></span><span style="display:flex;"><span>    poller<span style="color:#f92672">.</span><span style="color:#a6e22e">setDaemon</span><span style="color:#f92672">(</span><span style="color:#66d9ef">true</span><span style="color:#f92672">);</span>
+</span></span><span style="display:flex;"><span>    poller<span style="color:#f92672">.</span><span style="color:#a6e22e">start</span><span style="color:#f92672">();</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">}</span>
+</span></span><span style="display:flex;"><span>  
+</span></span><span style="display:flex;"><span><span style="color:#f92672">}</span>
+</span></span></code></pre></div><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">FilterLoader</span> <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>  
+</span></span><span style="display:flex;"><span>  <span style="color:#75715e">// 处理文件
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>  <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">boolean</span> <span style="color:#a6e22e">putFilter</span><span style="color:#f92672">(</span>File file<span style="color:#f92672">)</span> <span style="color:#66d9ef">throws</span> Exception <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>    String sName <span style="color:#f92672">=</span> file<span style="color:#f92672">.</span><span style="color:#a6e22e">getAbsolutePath</span><span style="color:#f92672">()</span> <span style="color:#f92672">+</span> file<span style="color:#f92672">.</span><span style="color:#a6e22e">getName</span><span style="color:#f92672">();</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">// 判断如果文件被修改过，则删除对应已经注册的filter
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>    <span style="color:#66d9ef">if</span> <span style="color:#f92672">(</span>filterClassLastModified<span style="color:#f92672">.</span><span style="color:#a6e22e">get</span><span style="color:#f92672">(</span>sName<span style="color:#f92672">)</span> <span style="color:#f92672">!=</span> <span style="color:#66d9ef">null</span> <span style="color:#f92672">&amp;&amp;</span> <span style="color:#f92672">(</span>file<span style="color:#f92672">.</span><span style="color:#a6e22e">lastModified</span><span style="color:#f92672">()</span> <span style="color:#f92672">!=</span> filterClassLastModified<span style="color:#f92672">.</span><span style="color:#a6e22e">get</span><span style="color:#f92672">(</span>sName<span style="color:#f92672">)))</span> <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>      LOG<span style="color:#f92672">.</span><span style="color:#a6e22e">debug</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;reloading filter &#34;</span> <span style="color:#f92672">+</span> sName<span style="color:#f92672">);</span>
+</span></span><span style="display:flex;"><span>      filterRegistry<span style="color:#f92672">.</span><span style="color:#a6e22e">remove</span><span style="color:#f92672">(</span>sName<span style="color:#f92672">);</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">}</span>
+</span></span><span style="display:flex;"><span>    
+</span></span><span style="display:flex;"><span>    ZuulFilter filter <span style="color:#f92672">=</span> filterRegistry<span style="color:#f92672">.</span><span style="color:#a6e22e">get</span><span style="color:#f92672">(</span>sName<span style="color:#f92672">);</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> <span style="color:#f92672">(</span>filter <span style="color:#f92672">==</span> <span style="color:#66d9ef">null</span><span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>      <span style="color:#75715e">// 编译文件 - zuul自带GroovyCompiler编译groovy编写的文件
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>      Class clazz <span style="color:#f92672">=</span> COMPILER<span style="color:#f92672">.</span><span style="color:#a6e22e">compile</span><span style="color:#f92672">(</span>file<span style="color:#f92672">);</span>
+</span></span><span style="display:flex;"><span>      <span style="color:#75715e">// 如果不是抽象类即ZuulFilter，则进行实例化并放入内存
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>      <span style="color:#66d9ef">if</span> <span style="color:#f92672">(!</span>Modifier<span style="color:#f92672">.</span><span style="color:#a6e22e">isAbstract</span><span style="color:#f92672">(</span>clazz<span style="color:#f92672">.</span><span style="color:#a6e22e">getModifiers</span><span style="color:#f92672">()))</span> <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>        filter <span style="color:#f92672">=</span> <span style="color:#f92672">(</span>ZuulFilter<span style="color:#f92672">)</span> FILTER_FACTORY<span style="color:#f92672">.</span><span style="color:#a6e22e">newInstance</span><span style="color:#f92672">(</span>clazz<span style="color:#f92672">);</span>
+</span></span><span style="display:flex;"><span>        List<span style="color:#f92672">&lt;</span>ZuulFilter<span style="color:#f92672">&gt;</span> list <span style="color:#f92672">=</span> hashFiltersByType<span style="color:#f92672">.</span><span style="color:#a6e22e">get</span><span style="color:#f92672">(</span>filter<span style="color:#f92672">.</span><span style="color:#a6e22e">filterType</span><span style="color:#f92672">());</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">if</span> <span style="color:#f92672">(</span>list <span style="color:#f92672">!=</span> <span style="color:#66d9ef">null</span><span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>          hashFiltersByType<span style="color:#f92672">.</span><span style="color:#a6e22e">remove</span><span style="color:#f92672">(</span>filter<span style="color:#f92672">.</span><span style="color:#a6e22e">filterType</span><span style="color:#f92672">());</span> <span style="color:#75715e">//rebuild this list
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>        <span style="color:#f92672">}</span>
+</span></span><span style="display:flex;"><span>        filterRegistry<span style="color:#f92672">.</span><span style="color:#a6e22e">put</span><span style="color:#f92672">(</span>file<span style="color:#f92672">.</span><span style="color:#a6e22e">getAbsolutePath</span><span style="color:#f92672">()</span> <span style="color:#f92672">+</span> file<span style="color:#f92672">.</span><span style="color:#a6e22e">getName</span><span style="color:#f92672">(),</span> filter<span style="color:#f92672">);</span>
+</span></span><span style="display:flex;"><span>        filterClassLastModified<span style="color:#f92672">.</span><span style="color:#a6e22e">put</span><span style="color:#f92672">(</span>sName<span style="color:#f92672">,</span> file<span style="color:#f92672">.</span><span style="color:#a6e22e">lastModified</span><span style="color:#f92672">());</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">true</span><span style="color:#f92672">;</span>
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">}</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">}</span>
+</span></span><span style="display:flex;"><span>    
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">false</span><span style="color:#f92672">;</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">}</span>	
+</span></span><span style="display:flex;"><span><span style="color:#f92672">}</span>
+</span></span></code></pre></div><p>以上两个类核心步骤 即为 <code>FilterFileManager</code>初始化过程</p>
+<ul>
+<li>扫描指定目录下的groovy文件，通过<code>FilterLoader</code>编译文件，并加载ZuulFilter</li>
+<li>开启守护进程，轮询文件，动态加载ZuulFilter</li>
+</ul>
+<h2 id="总结">总结</h2>
+<ul>
+<li>Zuul的源码执行路径：</li>
+</ul>
+<p><img src="http://qiniu.5ires.top/uPic/image-20200724141526966.png" alt="image-20200724141526966"></p>
+<ul>
+<li>
+<p>ZuulFilter的加载方式：是通过扫描<code>.groovy</code>文件来加载，并支持动态加载，具体可以看官方示例zuul-simple-webapp</p>
+</li>
+<li>
+<p>Zuul的整个流程，是基于servlet或filter方式在service或doFilter方法中衔接请求，并运用类似<a href="https://zh.wikipedia.org/wiki/%E5%A4%96%E8%A7%80%E6%A8%A1%E5%BC%8F">门面模式</a>编写</p>
+</li>
+</ul>
+<p>​      至此，Zuulfilter的加载以及各类型Filter的执行都在源码中找到了。zuul-core的代码还是很容易能看懂。下一篇，会分析SpringCloud怎么整合Zuul。</p>
+      </div>
+    </article>
+
+    <hr />
+
+    <div class="post-info">
+      
+    <p>
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-tag meta-icon"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path><line x1="7" y1="7" x2="7" y2="7"></line></svg>
+
+        <span class="tag"><a href="https://goldpumpkin.life/tags/java/">java</a></span>
+        
+    </p>
+
+      
+
+      <p>
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-file-text">
+          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+          <polyline points="14 2 14 8 20 8"></polyline>
+          <line x1="16" y1="13" x2="8" y2="13"></line>
+          <line x1="16" y1="17" x2="8" y2="17"></line>
+          <polyline points="10 9 9 9 8 9"></polyline>
+        </svg>
+        693 Words
+      </p>
+
+      <p>
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-calendar">
+          <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+          <line x1="16" y1="2" x2="16" y2="6"></line>
+          <line x1="8" y1="2" x2="8" y2="6"></line>
+          <line x1="3" y1="10" x2="21" y2="10"></line>
+        </svg>
+        
+          2020-07-21 08:00
+        
+
+         
+          
+        
+      </p>
+    </div>
+      <hr />
+      <div class="sharing-buttons">
+        
+<a class="resp-sharing-button__link" href="https://facebook.com/sharer/sharer.php?u=https%3a%2f%2fgoldpumpkin.life%2fposts%2f2020%2f07%2fzuul-%25E7%259A%2584%25E6%25BA%2590%25E7%25A0%2581%25E5%2588%2586%25E6%259E%2590%2f" target="_blank" rel="noopener" aria-label="" title="Share on facebook">
+  <div class="resp-sharing-button resp-sharing-button--facebook resp-sharing-button--small"><div aria-hidden="true" class="resp-sharing-button__icon resp-sharing-button__icon--solid">
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path></svg>
+    </div>
+  </div>
+</a>
+
+
+<a class="resp-sharing-button__link" href="https://twitter.com/intent/tweet/?url=https%3a%2f%2fgoldpumpkin.life%2fposts%2f2020%2f07%2fzuul-%25E7%259A%2584%25E6%25BA%2590%25E7%25A0%2581%25E5%2588%2586%25E6%259E%2590%2f" target="_blank" rel="noopener" aria-label="" title="Share on twitter">
+  <div class="resp-sharing-button resp-sharing-button--twitter resp-sharing-button--small">
+      <div aria-hidden="true" class="resp-sharing-button__icon resp-sharing-button__icon--solid">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 3a10.9 10.9 0 0 1-3.14 1.53 4.48 4.48 0 0 0-7.86 3v1A10.66 10.66 0 0 1 3 4s-4 9 5 13a11.64 11.64 0 0 1-7 2c9 5 20 0 20-11.5a4.5 4.5 0 0 0-.08-.83A7.72 7.72 0 0 0 23 3z"></path></svg>
+    </div>
+  </div>
+</a>
+
+
+<a class="resp-sharing-button__link" href="https://www.tumblr.com/widgets/share/tool?posttype=link&amp;title=Zuul%20%e7%9a%84%e6%ba%90%e7%a0%81%e5%88%86%e6%9e%90&amp;caption=Zuul%20%e7%9a%84%e6%ba%90%e7%a0%81%e5%88%86%e6%9e%90&amp;canonicalUrl=https%3a%2f%2fgoldpumpkin.life%2fposts%2f2020%2f07%2fzuul-%25E7%259A%2584%25E6%25BA%2590%25E7%25A0%2581%25E5%2588%2586%25E6%259E%2590%2f" target="_blank" rel="noopener" aria-label="" title="Share on tumblr">
+  <div class="resp-sharing-button resp-sharing-button--tumblr resp-sharing-button--small">
+    <div aria-hidden="true" class="resp-sharing-button__icon resp-sharing-button__icon--solid">
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor" stroke="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.563 24c-5.093 0-7.031-3.756-7.031-6.411V9.747H5.116V6.648c3.63-1.313 4.512-4.596 4.71-6.469C9.84.051 9.941 0 9.999 0h3.517v6.114h4.801v3.633h-4.82v7.47c.016 1.001.375 2.371 2.207 2.371h.09c.631-.02 1.486-.205 1.936-.419l1.156 3.425c-.436.636-2.4 1.374-4.156 1.404h-.178l.011.002z"/></svg>
+    </div>
+  </div>
+</a>
+
+
+<a class="resp-sharing-button__link" href="mailto:?subject=Zuul%20%e7%9a%84%e6%ba%90%e7%a0%81%e5%88%86%e6%9e%90&amp;body=https%3a%2f%2fgoldpumpkin.life%2fposts%2f2020%2f07%2fzuul-%25E7%259A%2584%25E6%25BA%2590%25E7%25A0%2581%25E5%2588%2586%25E6%259E%2590%2f" target="_self" rel="noopener" aria-label="" title="Share via email">
+  <div class="resp-sharing-button resp-sharing-button--email resp-sharing-button--small"><div aria-hidden="true" class="resp-sharing-button__icon resp-sharing-button__icon--solid">
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
+    </div>
+  </div>
+</a>
+
+
+<a class="resp-sharing-button__link" href="https://pinterest.com/pin/create/button/?url=https%3a%2f%2fgoldpumpkin.life%2fposts%2f2020%2f07%2fzuul-%25E7%259A%2584%25E6%25BA%2590%25E7%25A0%2581%25E5%2588%2586%25E6%259E%2590%2f&amp;media=https%3a%2f%2fgoldpumpkin.life%2fposts%2f2020%2f07%2fzuul-%25E7%259A%2584%25E6%25BA%2590%25E7%25A0%2581%25E5%2588%2586%25E6%259E%2590%2f;description=Zuul%20%e7%9a%84%e6%ba%90%e7%a0%81%e5%88%86%e6%9e%90" target="_blank" rel="noopener" aria-label="" title="Share on pinterest">
+  <div class="resp-sharing-button resp-sharing-button--pinterest resp-sharing-button--small"><div aria-hidden="true" class="resp-sharing-button__icon resp-sharing-button__icon--solid">
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M12.017 0C5.396 0 .029 5.367.029 11.987c0 5.079 3.158 9.417 7.618 11.162-.105-.949-.199-2.403.041-3.439.219-.937 1.406-5.957 1.406-5.957s-.359-.72-.359-1.781c0-1.663.967-2.911 2.168-2.911 1.024 0 1.518.769 1.518 1.688 0 1.029-.653 2.567-.992 3.992-.285 1.193.6 2.165 1.775 2.165 2.128 0 3.768-2.245 3.768-5.487 0-2.861-2.063-4.869-5.008-4.869-3.41 0-5.409 2.562-5.409 5.199 0 1.033.394 2.143.889 2.741.099.12.112.225.085.345-.09.375-.293 1.199-.334 1.363-.053.225-.172.271-.401.165-1.495-.69-2.433-2.878-2.433-4.646 0-3.776 2.748-7.252 7.92-7.252 4.158 0 7.392 2.967 7.392 6.923 0 4.135-2.607 7.462-6.233 7.462-1.214 0-2.354-.629-2.758-1.379l-.749 2.848c-.269 1.045-1.004 2.352-1.498 3.146 1.123.345 2.306.535 3.55.535 6.607 0 11.985-5.365 11.985-11.987C23.97 5.39 18.592.026 11.985.026L12.017 0z"/></svg>
+    </div>
+  </div>
+</a>
+
+
+<a class="resp-sharing-button__link" href="https://www.linkedin.com/shareArticle?mini=true&amp;url=https%3a%2f%2fgoldpumpkin.life%2fposts%2f2020%2f07%2fzuul-%25E7%259A%2584%25E6%25BA%2590%25E7%25A0%2581%25E5%2588%2586%25E6%259E%2590%2f&amp;title=Zuul%20%e7%9a%84%e6%ba%90%e7%a0%81%e5%88%86%e6%9e%90&amp;summary=Zuul%20%e7%9a%84%e6%ba%90%e7%a0%81%e5%88%86%e6%9e%90&amp;source=https%3a%2f%2fgoldpumpkin.life%2fposts%2f2020%2f07%2fzuul-%25E7%259A%2584%25E6%25BA%2590%25E7%25A0%2581%25E5%2588%2586%25E6%259E%2590%2f" target="_blank" rel="noopener" aria-label="" title="Share on linkedin">
+  <div class="resp-sharing-button resp-sharing-button--linkedin resp-sharing-button--small"><div aria-hidden="true" class="resp-sharing-button__icon resp-sharing-button__icon--solid">
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"></path><rect x="2" y="9" width="4" height="12"></rect><circle cx="4" cy="4" r="2"></circle></svg>
+    </div>
+  </div>
+</a>
+
+
+<a class="resp-sharing-button__link" href="https://reddit.com/submit/?url=https%3a%2f%2fgoldpumpkin.life%2fposts%2f2020%2f07%2fzuul-%25E7%259A%2584%25E6%25BA%2590%25E7%25A0%2581%25E5%2588%2586%25E6%259E%2590%2f&amp;resubmit=true&amp;title=Zuul%20%e7%9a%84%e6%ba%90%e7%a0%81%e5%88%86%e6%9e%90" target="_blank" rel="noopener" aria-label="" title="Share on reddit">
+  <div class="resp-sharing-button resp-sharing-button--reddit resp-sharing-button--small"><div aria-hidden="true" class="resp-sharing-button__icon resp-sharing-button__icon--solid">
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M12 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0zm5.01 4.744c.688 0 1.25.561 1.25 1.249a1.25 1.25 0 0 1-2.498.056l-2.597-.547-.8 3.747c1.824.07 3.48.632 4.674 1.488.308-.309.73-.491 1.207-.491.968 0 1.754.786 1.754 1.754 0 .716-.435 1.333-1.01 1.614a3.111 3.111 0 0 1 .042.52c0 2.694-3.13 4.87-7.004 4.87-3.874 0-7.004-2.176-7.004-4.87 0-.183.015-.366.043-.534A1.748 1.748 0 0 1 4.028 12c0-.968.786-1.754 1.754-1.754.463 0 .898.196 1.207.49 1.207-.883 2.878-1.43 4.744-1.487l.885-4.182a.342.342 0 0 1 .14-.197.35.35 0 0 1 .238-.042l2.906.617a1.214 1.214 0 0 1 1.108-.701zM9.25 12C8.561 12 8 12.562 8 13.25c0 .687.561 1.248 1.25 1.248.687 0 1.248-.561 1.248-1.249 0-.688-.561-1.249-1.249-1.249zm5.5 0c-.687 0-1.248.561-1.248 1.25 0 .687.561 1.248 1.249 1.248.688 0 1.249-.561 1.249-1.249 0-.687-.562-1.249-1.25-1.249zm-5.466 3.99a.327.327 0 0 0-.231.094.33.33 0 0 0 0 .463c.842.842 2.484.913 2.961.913.477 0 2.105-.056 2.961-.913a.361.361 0 0 0 .029-.463.33.33 0 0 0-.464 0c-.547.533-1.684.73-2.512.73-.828 0-1.979-.196-2.512-.73a.326.326 0 0 0-.232-.095z"/></svg>
+    </div>
+  </div>
+</a>
+
+
+<a class="resp-sharing-button__link" href="https://www.xing.com/app/user?op=share;url=https%3a%2f%2fgoldpumpkin.life%2fposts%2f2020%2f07%2fzuul-%25E7%259A%2584%25E6%25BA%2590%25E7%25A0%2581%25E5%2588%2586%25E6%259E%2590%2f;title=Zuul%20%e7%9a%84%e6%ba%90%e7%a0%81%e5%88%86%e6%9e%90" target="_blank" rel="noopener" aria-label="" title="Share on xing">
+  <div class="resp-sharing-button resp-sharing-button--xing resp-sharing-button--small"><div aria-hidden="true" class="resp-sharing-button__icon resp-sharing-button__icon--solid">
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M18.188 0c-.517 0-.741.325-.927.66 0 0-7.455 13.224-7.702 13.657.015.024 4.919 9.023 4.919 9.023.17.308.436.66.967.66h3.454c.211 0 .375-.078.463-.22.089-.151.089-.346-.009-.536l-4.879-8.916c-.004-.006-.004-.016 0-.022L22.139.756c.095-.191.097-.387.006-.535C22.056.078 21.894 0 21.686 0h-3.498zM3.648 4.74c-.211 0-.385.074-.473.216-.09.149-.078.339.02.531l2.34 4.05c.004.01.004.016 0 .021L1.86 16.051c-.099.188-.093.381 0 .529.085.142.239.234.45.234h3.461c.518 0 .766-.348.945-.667l3.734-6.609-2.378-4.155c-.172-.315-.434-.659-.962-.659H3.648v.016z"/></svg>
+    </div>
+  </div>
+</a>
+
+
+<a class="resp-sharing-button__link" href="whatsapp://send?text=Zuul%20%e7%9a%84%e6%ba%90%e7%a0%81%e5%88%86%e6%9e%90%20https%3a%2f%2fgoldpumpkin.life%2fposts%2f2020%2f07%2fzuul-%25E7%259A%2584%25E6%25BA%2590%25E7%25A0%2581%25E5%2588%2586%25E6%259E%2590%2f" target="_blank" rel="noopener" aria-label="" title="Share on whatsapp">
+  <div class="resp-sharing-button resp-sharing-button--whatsapp resp-sharing-button--small"><div aria-hidden="true" class="resp-sharing-button__icon resp-sharing-button__icon--solid">
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor" stroke="none" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/></svg>
+    </div>
+  </div>
+</a>
+
+
+<a class="resp-sharing-button__link" href="https://news.ycombinator.com/submitlink?u=https%3a%2f%2fgoldpumpkin.life%2fposts%2f2020%2f07%2fzuul-%25E7%259A%2584%25E6%25BA%2590%25E7%25A0%2581%25E5%2588%2586%25E6%259E%2590%2f&amp;t=Zuul%20%e7%9a%84%e6%ba%90%e7%a0%81%e5%88%86%e6%9e%90" target="_blank" rel="noopener" aria-label="" title="Share on hacker news">
+  <div class="resp-sharing-button resp-sharing-button--hackernews resp-sharing-button--small"><div aria-hidden="true" class="resp-sharing-button__icon resp-sharing-button__icon--solid">
+			<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M0 24V0h24v24H0zM6.951 5.896l4.112 7.708v5.064h1.583v-4.972l4.148-7.799h-1.749l-2.457 4.875c-.372.745-.688 1.434-.688 1.434s-.297-.708-.651-1.434L8.831 5.896h-1.88z"/></svg>
+    </div>
+  </div>
+</a>
+
+
+<a class="resp-sharing-button__link" href="https://telegram.me/share/url?text=Zuul%20%e7%9a%84%e6%ba%90%e7%a0%81%e5%88%86%e6%9e%90&amp;url=https%3a%2f%2fgoldpumpkin.life%2fposts%2f2020%2f07%2fzuul-%25E7%259A%2584%25E6%25BA%2590%25E7%25A0%2581%25E5%2588%2586%25E6%259E%2590%2f" target="_blank" rel="noopener" aria-label="" title="Share on telegram">
+  <div class="resp-sharing-button resp-sharing-button--telegram resp-sharing-button--small"><div aria-hidden="true" class="resp-sharing-button__icon resp-sharing-button__icon--solid">
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+    </div>
+  </div>
+</a>
+
+      </div>
+
+    
+    <div class="pagination">
+        
+
+        <div class="pagination__buttons">
+            
+            <span class="button previous">
+                <a href="https://goldpumpkin.life/posts/2020/07/springcloud-%E6%95%B4%E5%90%88-zuul-%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/">
+                    <span class="button__icon">←</span>
+                    <span class="button__text">SpringCloud 整合 Zuul 源码分析</span>
+                </a>
+            </span>
+            
+
+            
+            <span class="button next">
+                <a href="https://goldpumpkin.life/posts/2020/07/hytrix%E7%BA%BF%E7%A8%8B%E6%B1%A0%E8%AE%BE%E7%BD%AE%E5%9D%91/">
+                    <span class="button__text">Hytrix线程池设置坑</span>
+                    <span class="button__icon">→</span>
+                </a>
+            </span>
+            
+        </div>
+    </div>
+
+
+    
+
+    
+
+    
+
+  </main>
+
+            </div>
+
+            
+                <footer class="footer">
+    
+    <div class="footer__inner">
+        <div class="footer__content">
+            <span>&copy; true</span>
+            <span><a href="https://goldpumpkin.life"></a></span>
+            <span><a href="https://creativecommons.org/licenses/by-nc/4.0/" target="_blank" rel="noopener">CC BY-NC 4.0</a></span>
+            <span><a href="https://goldpumpkin.life/posts/index.xml" target="_blank" title="rss"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-rss"><path d="M4 11a9 9 0 0 1 9 9"></path><path d="M4 4a16 16 0 0 1 16 16"></path><circle cx="5" cy="19" r="1"></circle></svg></a></span>
+            
+        </div>
+    </div>
+    
+    
+</footer>
+
+            
+        </div>
+
+        
+
+
+
+<script type="text/javascript" src="https://goldpumpkin.life/bundle.min.44ed8e6bdb8f6bb833a799f95eea2b7bf2c14472efd850f9e937b685aa39d7c04d04225a2f507761c484a2f10c84082258990a1c170aa0f8b94342184da9a7d5.js" integrity="sha512-RO2Oa9uPa7gzp5n5Xuore/LBRHLv2FD56Te2hao518BNBCJaL1B3YcSEovEMhAgiWJkKHBcKoPi5Q0IYTamn1Q=="></script>
+
+
+
+
+    </body>
+</html>
