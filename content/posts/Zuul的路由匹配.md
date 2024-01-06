@@ -17,17 +17,17 @@ date : "2020-08-19"
 
 1. Debug 显示匹配路由是先从 Spring 在`AbstractUrlHandlerMapping`匹配`HandlerExecutionChain`开始
 
-   ![Spring-Match-ZuulController](http://qiniu.5ires.top/uPic/image-20200819230258789.png)
+   ![Spring-Match-ZuulController](https://img.goldpumpkin.life/o/image-20200819230258789.png)
 
 2. 之后进入到`ZuulFilter`的 Pre 类型的FIlter当中的`PreDecorationFilter` ，匹配对应的`ZuulRoute`
 
 3. 首先把请求的路由修理一下，去掉context-path。就像例子当中，请求 url 中`/text/test` 去掉了 `/text`，再接着执行
 
-   ![去掉context-path](http://qiniu.5ires.top/uPic/image-20200819190711091.png)
+   ![去掉context-path](https://img.goldpumpkin.life/o/image-20200819190711091.png)
 
 4. 之后进入到`SimpleRouteLocator`，判断是否属于 Zuul 忽略处理的请求，如果不是，再匹配对应`ZuulRoute`。这里可以发现匹配功能都是由`AntPathMatcher`来负责
 
-   ![SimpleRouteLocator匹配URL](http://qiniu.5ires.top/uPic/image-20200819191434405.png)
+   ![SimpleRouteLocator匹配URL](https://img.goldpumpkin.life/o/image-20200819191434405.png)
 
 那我们发现，不管是 Spring 的匹配 Handler 还是 `PreDecorationFilter` 匹配 `ZuulRoute`，都用到的是`AntPathMatcher`。那我们现在只需要搞明白`AntPathMatcher`匹配规则就好了。Go on!
 

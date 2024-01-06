@@ -428,14 +428,14 @@ service.test=http://127.0.0.1:8081/t/test
 
 图示过程：
 
-![image-20200724183906920](http://qiniu.5ires.top/uPic/image-20200724183906920.png)
+![image-20200724183906920](https://img.goldpumpkin.life/o/image-20200724183906920.png)
 
-![image-20200724184049891](http://qiniu.5ires.top/uPic/image-20200724184049891.png)
+![image-20200724184049891](https://img.goldpumpkin.life/o/image-20200724184049891.png)
 
 结果显示：猜想是正确的。
 大致流程：`DispatcherServlet` -> `ZuulController` -> `ZuulServlet` -> 执行各阶段`ZuulFilters`
 
-![image-20200803183334690](http://qiniu.5ires.top/uPic/ZuulServlet%E6%8E%A5%E7%AE%A1%E6%B5%81%E7%A8%8B%E5%9B%BE.png)
+![image-20200803183334690](https://img.goldpumpkin.life/o/ZuulServlet%E6%8E%A5%E7%AE%A1%E6%B5%81%E7%A8%8B%E5%9B%BE.png)
 
 ## ZuulServletFilter - 另一种拦截请求流程
 
@@ -489,11 +489,11 @@ public class ZuulServletFilter extends com.netflix.zuul.filters.ZuulServletFilte
 
 其中要注意下，`com.netflix.zuul.filters.ZuulServletFilter`虽然是Filter，但是并没有在其`doFilter`方法中调用`FilterChain`的`doFilter`方法，我们可以回想下，如果是我们自己写FIlter，一定会调用。之所以`ZuulServletFilte`没有这么做，是因为它要接管请求，并不要Servlet来处理。
 
-![image-20200803183210907](http://qiniu.5ires.top/uPic/ZuulServletFilter.png)
+![image-20200803183210907](https://img.goldpumpkin.life/o/ZuulServletFilter.png)
 
 大致流程如图：
 
-![image-20200803183440164](http://qiniu.5ires.top/uPic/ZuulServletFilter%E6%8E%A5%E7%AE%A1%E6%B5%81%E7%A8%8B%E5%9B%BE.png)
+![image-20200803183440164](https://img.goldpumpkin.life/o/ZuulServletFilter%E6%8E%A5%E7%AE%A1%E6%B5%81%E7%A8%8B%E5%9B%BE.png)
 
 ## 总结
 

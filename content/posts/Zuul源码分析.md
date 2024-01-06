@@ -16,7 +16,7 @@ Zuul 的源码读过吗？让我们一起看看吧
 
 ## Zuul过滤器的生命周期
 
-![preview](http://qiniu.5ires.top/uPic/view.png)
+![preview](https://img.goldpumpkin.life/o/view.png)
 
 ## 源码分析
 
@@ -347,7 +347,7 @@ public class FilterLoader {
 
 +  Zuul的源码执行路径：
 
-  ![image-20200724141526966](http://qiniu.5ires.top/uPic/image-20200724141526966.png)
+  ![image-20200724141526966](https://img.goldpumpkin.life/o/image-20200724141526966.png)
 
 + ZuulFilter的加载方式：是通过扫描`.groovy`文件来加载，并支持动态加载，具体可以看官方示例zuul-simple-webapp
 

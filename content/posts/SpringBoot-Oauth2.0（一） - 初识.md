@@ -207,19 +207,19 @@ Client 的相关信息：
 
 当我们直接请求，应用返回未授权，无法访问：
 
-![image-20200828171302993](http://qiniu.5ires.top/uPic/image-20200828171302993.png)
+![image-20200828171302993](https://img.goldpumpkin.life/o/image-20200828171302993.png)
 
 ### 获取 access token
 
 springboot oauth 默认获取 token 的 endpoint 是: /oauth/token
 
-![image-20200828153448422](http://qiniu.5ires.top/uPic/image-20200828153448422.png)
+![image-20200828153448422](https://img.goldpumpkin.life/o/image-20200828153448422.png)
 
 从请求结果可以看到，我们获取了access_token，并且刷新时间是43199秒，即12个小时。
 
 ### 请求被保护的资源
 
-![image-20200828153851996](http://qiniu.5ires.top/uPic/image-20200828153851996.png)
+![image-20200828153851996](https://img.goldpumpkin.life/o/image-20200828153851996.png)
 
 结果来看，我们成功用 access token 访问到了被保护的资源。
 

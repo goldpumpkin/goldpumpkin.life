@@ -46,7 +46,7 @@ hystrix.threadpool.default.queueSizeRejectionThreshold=1000
 
   `HystrixThreadPool` ：hytrix的线程池interface，其中有静态内部类`Factory`,一眼看到`getInstance`方法，追溯到另一个静态内部类`HystrixThreadPoolDefault`，再到`HystrixConcurrencyStrategy`,终于找到了线程池的创建方法`getThreadPool`
 
-  ![image-20200714190115273](http://qiniu.5ires.top/uPic/image-20200714190115273.png)
+  ![image-20200714190115273](https://img.goldpumpkin.life/o/image-20200714190115273.png)
 
   由此可以看出hytrix是使用jdk的线程池，所以线程池的运行规则应该都是一样的。
 
@@ -216,7 +216,7 @@ hystrix.threadpool.default.queueSizeRejectionThreshold=1000
 
   1. 测试数据：`coreSize`=5, `maxQueueSize`=-1，`maximumSize`=10，`queueSizeRejectionThreshold `=100
 
-     ![image-20200715145014418](http://qiniu.5ires.top/uPic/image-20200715145014418.png)
+     ![image-20200715145014418](https://img.goldpumpkin.life/o/image-20200715145014418.png)
 
      结果显示：
 
@@ -224,7 +224,7 @@ hystrix.threadpool.default.queueSizeRejectionThreshold=1000
 
   2. 测试数据 `coreSize`=5, `maxQueueSize`=5，`maximumSize`=10，`queueSizeRejectionThreshold `=5
 
-     ![image-20200715152012583](http://qiniu.5ires.top/uPic/image-20200715152012583.png)
+     ![image-20200715152012583](https://img.goldpumpkin.life/o/image-20200715152012583.png)
 
      结果显示：在第11个任务并发的时候，hytrix会拒绝执行任务，因此`maxQueueSize` >  0并且`maxQueueSize`=`queueSizeRejectionThreshold `时，
 
@@ -232,7 +232,7 @@ hystrix.threadpool.default.queueSizeRejectionThreshold=1000
 
   3. 测试数据 `coreSize`=5, `maxQueueSize`=5，`maximumSize`=10，`queueSizeRejectionThreshold `=3
 
-     ![image-20200715152153437](http://qiniu.5ires.top/uPic/image-20200715152153437.png)
+     ![image-20200715152153437](https://img.goldpumpkin.life/o/image-20200715152153437.png)
 
      结果显示：在第9个任务并发的时候，hytrix会拒绝任务，因此，`maxQueueSize` >  0并且`maxQueueSize`>`queueSizeRejectionThreshold `时，
 
@@ -240,7 +240,7 @@ hystrix.threadpool.default.queueSizeRejectionThreshold=1000
 
   4. 测试数据 `coreSize`=5, `maxQueueSize`=5，`maximumSize`=10，`queueSizeRejectionThreshold `=20
 
-     ![image-20200715170229628](http://qiniu.5ires.top/uPic/image-20200715170229628.png)
+     ![image-20200715170229628](https://img.goldpumpkin.life/o/image-20200715170229628.png)
 
      结果显示：在第16个任务并发的时候，hytrix会拒绝任务，因此，`maxQueueSize` >  0并且`maxQueueSize`<`queueSizeRejectionThreshold `时，
 

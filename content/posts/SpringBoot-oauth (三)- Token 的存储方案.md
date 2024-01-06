@@ -56,11 +56,11 @@ spring:
 
 ### 请求 Token
 
-![redis-请求token](http://qiniu.5ires.top/uPic/image-20200903180205938.png)
+![redis-请求token](https://img.goldpumpkin.life/o/image-20200903180205938.png)
 
 ### Redis 中的 Token 数据
 
-![redis-存储token](http://qiniu.5ires.top/uPic/image-20200903180425965.png)
+![redis-存储token](https://img.goldpumpkin.life/o/image-20200903180425965.png)
 
 可以看出数据库新增了4个 Key ，那他们的 Value 是什么呢？直接看数据，都是二进制数据，看不出来。那我们回到源码去找答案。找到类 OAuth2Authentication 的 storeAccessToken 方法，可以看出除了 Key 为 auth:token 的 Value 是OAuth2Authentication 实例的序列化二进制数据外，其他 Key 的 Value 都是 Token 对应的二进制数据。
 
@@ -68,7 +68,7 @@ spring:
 
 ### 请求资源
 
-![redis-请求资源](http://qiniu.5ires.top/uPic/image-20200903182015962.png)
+![redis-请求资源](https://img.goldpumpkin.life/o/image-20200903182015962.png)
 
 毫不意外和惊喜的接受预期的结果吧。
 
@@ -120,7 +120,7 @@ public class MyAuthorizationServerConfigurer extends AuthorizationServerConfigur
 
 ### 获取 Token 
 
-![jwt-获取token](http://qiniu.5ires.top/uPic/image-20200904114623764.png)
+![jwt-获取token](https://img.goldpumpkin.life/o/image-20200904114623764.png)
 
 这个 Token 也太长了吧，完整 Token 如下：
 
@@ -130,13 +130,13 @@ eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOlsicmVzIl0sInNjb3BlIjpbIndyaXRlIl0
 
 来一起看下这个 Token，确实有三段，前两段可以直接用 Base64URL 解码。那我们直接到 [JWT 官网](https://jwt.io/)解码一下：
 
-![jwt-decode](http://qiniu.5ires.top/uPic/image-20200904115142148.png)
+![jwt-decode](https://img.goldpumpkin.life/o/image-20200904115142148.png)
 
 信息如图所示，看到了客户端的相关信息，这也是我们想要的 Token 本身已经承载了 Client 的相关授权信息。接下来继续完成我们的验证，请求一下资源看结果。
 
 ### 请求资源
 
-![jwt-请求资源](http://qiniu.5ires.top/uPic/image-20200904115634873.png)
+![jwt-请求资源](https://img.goldpumpkin.life/o/image-20200904115634873.png)
 
 很顺利，我们请求资源成功了。
 
@@ -144,7 +144,4 @@ eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOlsicmVzIl0sInNjb3BlIjpbIndyaXRlIl0
 
 今天我们的目的就是寻找替代数据库存储 Token 的方案，分析之后找出了3种方案，并分别进行了实践。如果你的应用是单机，那么 Token 直接用内存就可以，很方便。如果你的应用是分布式的，那么关系型数据库是一种选择，如果对性能要求很高，那就上 Redis 吧。不过 JWT 方案性能也很高，还不要存储，只是暴露了一些授权信息，你可以把 Token 生效时间控制一下，因为它颁发后就无法在服务器侧失效，生产用它也没有太大问题。具体情况具体分析后，再选择合适的方式存储 Token 吧。
 
-**个人水平有限，欢迎大家指正，欢迎关注微信公众号「小黄的笔记」一起交流哦~~~**
-![小黄的笔记](http://qiniu.5ires.top/uPic/1598968637527.jpg)
-
-**demo：https://github.com/goldpumpkin/learn-demo/tree/master/springboot-oauth** 
+*demo：https://github.com/goldpumpkin/learn-demo/tree/master/springboot-oauth* 

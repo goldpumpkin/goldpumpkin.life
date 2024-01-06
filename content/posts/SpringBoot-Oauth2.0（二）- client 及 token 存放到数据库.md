@@ -112,15 +112,15 @@ public class MyAuthorizationServerConfigurer extends AuthorizationServerConfigur
 
 下面的请求是在 postman 中进行的。 base_url 为设置的全局变量，实际为 http://127.0.0.1:8080
 
-![获取token](http://qiniu.5ires.top/uPic/image-20200901102558730.png)
+![获取token](https://img.goldpumpkin.life/o/image-20200901102558730.png)
 
 ### 获取资源
 
-![请求资源](http://qiniu.5ires.top/uPic/image-20200901102640629.png)
+![请求资源](https://img.goldpumpkin.life/o/image-20200901102640629.png)
 
 ### 观察数据库
 
-![token存储](http://qiniu.5ires.top/uPic/image-20200901102741912.png)
+![token存储](https://img.goldpumpkin.life/o/image-20200901102741912.png)
 
 由于 token 在数据库是存储的是二进制形式，但是我们通过 client_id 数据，可以看出是我们刚刚请求的 client。
 
@@ -170,7 +170,7 @@ public class PasswordEncodeUtil {
 原密码：123456
 加密后密码：{bcrypt}$2a$10$NPxtsEUMmBGTlzVXlT.scubSCXNEDlBAq2r2t7iQFB/.RaNBlh0nO
 
-![client_sercret 加密](http://qiniu.5ires.top/uPic/image-20200901113958428.png)
+![client_sercret 加密](https://img.goldpumpkin.life/o/image-20200901113958428.png)
 
 *注意：加密密码的前缀 大括号 "{xxx}"，是指定算法名称。因为框架支持多种算法，那么必须需要带有算法前缀。*
 
@@ -178,11 +178,11 @@ public class PasswordEncodeUtil {
 
 下面的请求是在 postman 中进行的。 base_url 为设置的全局变量，实际为 http://127.0.0.1:8080
 
-![请求token](http://qiniu.5ires.top/uPic/image-20200901114224122.png)
+![请求token](https://img.goldpumpkin.life/o/image-20200901114224122.png)
 
 ### 请求资源
 
-![请求资源](http://qiniu.5ires.top/uPic/image-20200901114259361.png)
+![请求资源](https://img.goldpumpkin.life/o/image-20200901114259361.png)
 
 ## 小结
 

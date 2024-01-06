@@ -97,9 +97,9 @@ Zuul Forward：
   + Test-Sensitive-Header - 是敏感Header不转发
   + Test-nomal-Header - 进行转发
 
-![Example2-route-matched](http://qiniu.5ires.top/uPic/image-20200816225825634.png)
+![Example2-route-matched](https://img.goldpumpkin.life/o/image-20200816225825634.png)
 
-![Example2-请求情况](http://qiniu.5ires.top/uPic/image-20200816230622007.png)
+![Example2-请求情况](https://img.goldpumpkin.life/o/image-20200816230622007.png)
 
 ## 转发到Service的配置
 
@@ -208,21 +208,21 @@ Request URL：http://127.0.0.1:8001/test
 + 转发到：http://127.0.0.1:9000/test
 + 返回：code: 500
 
-![Example4-第一次请求到端口9000](http://qiniu.5ires.top/uPic/image-20200817190925927.png)
+![Example4-第一次请求到端口9000](https://img.goldpumpkin.life/o/image-20200817190925927.png)
 
 第二步：
 
 + 重试：http://127.0.0.1:9000/test
 + 返回：code: 500
 
-![Example4-重试第一次端口号9001](http://qiniu.5ires.top/uPic/image-20200817191248495.png)
+![Example4-重试第一次端口号9001](https://img.goldpumpkin.life/o/image-20200817191248495.png)
 
 第三步和第四步：
 
 + 重试：http://127.0.0.1:9001/test
 + 返回：因为9001端口没有启动服务，返回没有连接
 
-![Example4-重试转发至服务的另一个实例 端口号9001](http://qiniu.5ires.top/uPic/image-20200817191521361.png)
+![Example4-重试转发至服务的另一个实例 端口号9001](https://img.goldpumpkin.life/o/image-20200817191521361.png)
 
 至此，本次请求，一共重试了3次。
 
