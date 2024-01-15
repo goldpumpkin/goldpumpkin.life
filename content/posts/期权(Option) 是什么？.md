@@ -71,8 +71,8 @@ date : "2024-01-15"
 
 期权的投资策略有多种多样，是一种比较复杂的投资工具，慢慢了解。
 
-参考链接
+*参考链接*
 
-- https://www.optionsplaybook.com/
-- https://www.jinxinqh.com/article/25
+- *https://www.optionsplaybook.com/*
+- *https://www.jinxinqh.com/article/25*
 
