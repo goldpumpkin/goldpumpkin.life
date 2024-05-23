@@ -4,7 +4,7 @@ import PostCard from "@/components/PostCard";
 
 export default function Home() {
 
-  const postMetadata = getPostMetadata('recipes')
+  const postMetadata = getPostMetadata('content/posts/')
 
   return (
       <main>

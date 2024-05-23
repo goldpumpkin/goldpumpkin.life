@@ -17,6 +17,9 @@ const HomePage = {
       template: `%s | Gold's Blog`,
     },
     description: "A full-stack developer.",
+    icons: {
+      shortcut: "/favicon.ico",
+    }
   },
   title: "Gold",
   description: "A full-stack developer.",

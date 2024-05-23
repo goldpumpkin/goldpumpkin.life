@@ -4,7 +4,7 @@ import getPostMetadata from "../../../utils/getPostMetadata";
 import getPostContent from "../../../utils/getPostContent";
 
 export const generateStaticParams = async () => {
-    const posts = getPostMetadata('recipes')
+    const posts = getPostMetadata('content/posts')
     return posts.map((post) => ({ slug: post.slug }))
 }
 

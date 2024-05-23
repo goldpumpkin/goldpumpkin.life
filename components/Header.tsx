@@ -27,7 +27,6 @@ const Header: NextPage = () => {
                 </ul>
             </nav>
         </header>
-
     );
 }
 

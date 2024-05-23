@@ -3,7 +3,7 @@ import matter from "gray-matter";
 
 
 export default function getPostContent(slug) {
-    const folder = 'recipes/'
+    const folder = 'content/posts/'
     const file = folder + `${slug}.md`
     const decodeFile = decodeURIComponent(file);
     const content = fs.readFileSync(decodeFile, 'utf8')

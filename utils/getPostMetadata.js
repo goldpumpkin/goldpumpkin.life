@@ -15,6 +15,8 @@ export default function getPostMetadata(basePath) {
             publishedAt: matterResult.data.date,
             slug: filename.replace('.md', '')
         }
+    }).sort((f1, f2) => {
+        return f1.publishedAt > f2.publishedAt ? -1 : 1;
     })
     return posts
 }
