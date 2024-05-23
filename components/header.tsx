@@ -23,7 +23,6 @@ const Header: NextPage = () => {
                                 {nav?.title}
                             </Link>
                         </li>
-
                     ))}
                 </ul>
             </nav>
