@@ -7,7 +7,7 @@ export const dynamicParams = false;
 
 export const generateStaticParams = async () => {
     const posts = getPostMetadata('content/posts')
-    return posts.map((post) => ({ slug: encodeURI(post.slug) }))
+    return posts.map((post) => ({ slug: post.slug }))
 }
 
 export async function generateMetadata( params: any, searchParams: any) {
