@@ -20,7 +20,8 @@ export async function generateMetadata( params: any, searchParams: any) {
 export default function Blog(props: any) {
 
     const slug = props.params.slug
-    const post = getPostContent(slug)
+    const decodeSlug = decodeURI(slug);
+    const post = getPostContent(decodeSlug)
     return (
         <main>
             <article>
