@@ -1,4 +1,3 @@
-import Image from "next/image";
 import getPostMetadata from "@/utils/getPostMetadata";
 import PostCard from "@/components/PostCard";
 

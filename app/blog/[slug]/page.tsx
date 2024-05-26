@@ -15,7 +15,7 @@ export async function generateMetadata( params: any, searchParams: any) {
     }
 }
 
-export default function RecipePage(props: any) {
+export default function Blog(props: any) {
 
     const slug = props.params.slug
     const post = getPostContent(slug)
