@@ -6,7 +6,7 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import {HomePage} from "@/data/meta-data";
 
-export const runtime = "nodejs";
+export const runtime = "edge";
 export const dynamic = "force-static";
 
 const inter = Inter({ subsets: ["latin"] });
