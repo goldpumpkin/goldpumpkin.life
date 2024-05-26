@@ -1,7 +1,9 @@
 import Markdown from "markdown-to-jsx"
 import React from 'react'
-import getPostMetadata from "../../../utils/getPostMetadata";
-import getPostContent from "../../../utils/getPostContent";
+import getPostMetadata from "@/lib/getPostMetadata";
+import getPostContent from "@/lib/getPostContent";
+
+export const dynamicParams = false;
 
 export const generateStaticParams = async () => {
     const posts = getPostMetadata('content/posts')

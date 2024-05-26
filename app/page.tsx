@@ -1,4 +1,4 @@
-import getPostMetadata from "@/utils/getPostMetadata";
+import getPostMetadata from "@/lib/getPostMetadata";
 import PostCard from "@/components/PostCard";
 
 export default function Home() {
