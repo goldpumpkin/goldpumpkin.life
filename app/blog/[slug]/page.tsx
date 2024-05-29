@@ -2,7 +2,6 @@ import Markdown from "markdown-to-jsx"
 import React from 'react'
 import getPostMetadata from "@/lib/getPostMetadata";
 import getPostContent from "@/lib/getPostContent";
-import Link from "next/link";
 
 export const dynamicParams = false;
 
@@ -18,16 +17,6 @@ export async function generateMetadata( params: any, searchParams: any) {
     }
 }
 
-const options = {
-  overrides: {
-    a: ({href, children}: any) => (
-      <Link href={href} target="_blank" rel="noopener noreferrer" className="bg-yellow-500">
-        {children}
-      </Link>
-    ),
-  },
-};
-
 export default function Blog(props: any) {
 
     const slug = props.params.slug
@@ -36,7 +25,7 @@ export default function Blog(props: any) {
     return (
         <main>
             <article>
-                <Markdown children={post.content} options={options} />
+                <Markdown>{post.content}</Markdown>
             </article>
         </main>
     )
