@@ -31,3 +31,47 @@ body {
     text-wrap: balance;
   }
 }
+
+.prose .anchor {
+  @apply absolute invisible no-underline;
+  margin-left: -1em;
+  padding-right: 0.5em;
+  width: 100%;
+  max-width: 700px;
+  cursor: pointer;
+}
+
+.anchor:hover {
+  @apply visible;
+}
+
+.prose .anchor:after {
+  @apply text-slate-400 dark:text-slate-200;
+  content: "#";
+}
+
+.prose *:hover > .anchor {
+  @apply visible;
+}
+
+.prose pre {
+  border-radius: 0;
+}
+
+.prose ul {
+  word-wrap: break-word;
+}
+
+table {
+  @apply border border-slate-200 dark:border-slate-600 border-collapse m-0 p-0 w-full !table-fixed;
+}
+
+table tr {
+  @apply border border-slate-200 dark:border-slate-600 bg-slate-50 p-2 dark:bg-slate-800 break-words;
+}
+
+table th,
+table td {
+  @apply !p-2 text-center !align-middle text-sm;
+}
+
