@@ -7,7 +7,7 @@ date : "2020-08-31"
 ---
 
 [上一篇](https://juejin.im/post/6865971696017833997)我们已经用最简单的方式，搭建了一个授权方式是 client_credentials 的 Oauth2 的流程。那么现在，在此基础上，我们就再往前迈一步，我们把 client 信息和 token 存储到数据库当中，方便我们管理。并且密码需要保证安全，那么就需要加密。目标很明确，那我们开始吧！
-<!--more-->
+
 
 ## client&token存储到数据库
 
@@ -168,11 +168,11 @@ public class PasswordEncodeUtil {
 ```
 
 原密码：123456
-加密后密码：{bcrypt}$2a$10$NPxtsEUMmBGTlzVXlT.scubSCXNEDlBAq2r2t7iQFB/.RaNBlh0nO
+加密后密码：`{bcrypt}$2a$10$NPxtsEUMmBGTlzVXlT.scubSCXNEDlBAq2r2t7iQFB/.RaNBlh0nO`
 
 ![client_sercret 加密](https://img.goldpumpkin.life/o/image-20200901113958428.png)
 
-*注意：加密密码的前缀 大括号 "{xxx}"，是指定算法名称。因为框架支持多种算法，那么必须需要带有算法前缀。*
+*注意：加密密码的前缀 大括号 `{xxx}`，是指定算法名称。因为框架支持多种算法，那么必须需要带有算法前缀。*
 
 ### 请求获取 token
 

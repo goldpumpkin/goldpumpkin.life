@@ -7,8 +7,7 @@ date : "2020-07-14"
 
 ---
 
-最近遇到修改 Hytrix 线程池配置，不生效的情况。然后发现了一些坑。。。
-<!--more-->
+最近遇到修改 Hytrix 线程池配置,不生效的情况。然后发现了一些坑。。。
 
 ### Background
 
@@ -34,40 +33,40 @@ hystrix.threadpool.default.queueSizeRejectionThreshold=1000
 
 现象
 
-在此配置之下，测试线程数始终不能达到最大线程数
+在此配置之下,测试线程数始终不能达到最大线程数
 
 ### Why
 
-是什么样的逻辑，导致`maximumSize`配置失效？需要一步步深入源码探索
+是什么样的逻辑,导致maximumSize配置失效？需要一步步深入源码探索
 
 + hytrixs使用的线程池是jdk的线程池吗？
 
   `HystrixThreadPoolProperties` ：hytrix线程池的配置类
 
-  `HystrixThreadPool` ：hytrix的线程池interface，其中有静态内部类`Factory`,一眼看到`getInstance`方法，追溯到另一个静态内部类`HystrixThreadPoolDefault`，再到`HystrixConcurrencyStrategy`,终于找到了线程池的创建方法`getThreadPool`
+  `HystrixThreadPool` ：hytrix的线程池interface,其中有静态内部类`Factory`,一眼看到`getInstance`方法,追溯到另一个静态内部类`HystrixThreadPoolDefault`,再到`HystrixConcurrencyStrategy`,终于找到了线程池的创建方法`getThreadPool`
 
   ![image-20200714190115273](https://img.goldpumpkin.life/o/image-20200714190115273.png)
 
-  由此可以看出hytrix是使用jdk的线程池，所以线程池的运行规则应该都是一样的。
+  由此可以看出hytrix是使用jdk的线程池,所以线程池的运行规则应该都是一样的。
 
   > 回顾java线程池的运行规则：
   >
-  > + 假设第一次运行线程池，当有任务来的时候，首先创建线程直到线程数达到核心线程数
-  > + 核心线程数量的线程被占满，之后的任务加入到阻塞队列当中
-  > + 当核心线程数和阻塞队列都被占满，之后的任务到达线程池，线程池则会创建更多的线程，直到存在的线程数量达到最大线程配置的数量
-  > + 当最大线程数量的线程和队列都被占满，之后的任务到达线程池，那么线程池会根据拒绝策略执行相关逻辑
+  > + 假设第一次运行线程池,当有任务来的时候,首先创建线程直到线程数达到核心线程数
+  > + 核心线程数量的线程被占满,之后的任务加入到阻塞队列当中
+  > + 当核心线程数和阻塞队列都被占满,之后的任务到达线程池,线程池则会创建更多的线程,直到存在的线程数量达到最大线程配置的数量
+  > + 当最大线程数量的线程和队列都被占满,之后的任务到达线程池,那么线程池会根据拒绝策略执行相关逻辑
 
   
 
 + 导致的失效的具体代码逻辑
 
-  `HystrixContextScheduler`,由于hytrix的源代码是使用`RxJava`框架来写的，不太理解，最终打断点找到了此类，进入了`schedule`方法。
+  `HystrixContextScheduler`,由于hytrix的源代码是使用`RxJava`框架来写的,不太理解,最终打断点找到了此类,进入了`schedule`方法。
 
   ```java
   @Override
   public Subscription schedule(Action0 action) {
     if (threadPool != null) {
-    		// 线程池队列无可用空间时，直接拒绝任务  
+    		// 线程池队列无可用空间时,直接拒绝任务  
         if (!threadPool.isQueueSpaceAvailable()) {
            throw new RejectedExecutionException("Rejected command because thread-pool queueSize is at rejection threshold.");
           }
@@ -76,11 +75,11 @@ hystrix.threadpool.default.queueSizeRejectionThreshold=1000
   }
   ```
 
-  可以看到，再添加action之前，会校验线程池的队列空间是否可用。具体逻辑如下：
+  可以看到,再添加action之前,会校验线程池的队列空间是否可用。具体逻辑如下：
 
   ```java
    public boolean isQueueSpaceAvailable() {
-     // 1. 配置的队列的数量小于等于0，直接返回true。那么继上一步任务会给到线程池，由它决定任务执行与否
+     // 1. 配置的队列的数量小于等于0,直接返回true。那么继上一步任务会给到线程池,由它决定任务执行与否
      if (queueSize <= 0) {
        return true;
      } else {
@@ -92,15 +91,15 @@ hystrix.threadpool.default.queueSizeRejectionThreshold=1000
 
   根据此代码逻辑可以得出：
 
-  + 配置线程池队列大小参数为-1时，任务的执行与否交给java线程池决定，此时队列是同步队列，那么当并发任务数量大于核心线程数小于最大线程数的时候，是应该会创建新的线程来执行此任务。那么`maximumSize`的配置是有效的
-  + 配置线程池队列的`maxQueueSize`大于等于`queueSizeRejectionThreshold`配置时。若此时并发数达到了核心线程数和`maxQueueSize`配置之和，再有任务需要执行时，根据此逻辑，会返回`false`，拒绝任务的执行，并不会交给线程池处理。从而使得`maximumSize`的配置是无效的。
+  + 配置线程池队列大小参数为-1时,任务的执行与否交给java线程池决定,此时队列是同步队列,那么当并发任务数量大于核心线程数小于最大线程数的时候,是应该会创建新的线程来执行此任务。那么maximumSize的配置是有效的
+  + 配置线程池队列的maxQueueSize大于等于`queueSizeRejectionThreshold`配置时。若此时并发数达到了核心线程数和maxQueueSize配置之和,再有任务需要执行时,根据此逻辑,会返回`false`,拒绝任务的执行,并不会交给线程池处理。从而使得maximumSize的配置是无效的。
 
-  由此，我们追溯到了`maximumSize`配置无效的原因。
+  由此,我们追溯到了maximumSize配置无效的原因。
 
-### 让`maximumSize`变得有效
+### 让maximumSize变得有效
 
-+ 不使用线程池的队列，直接将maxQueueSize配置设为 -1
-+ `queueSizeRejectionThreshold`配置大于`maxQueueSize`也可以让线程池中线程的数量达到`maximumSize`数量，但是此时`queueSizeRejectionThreshold`配置并没有起到它应该承担的意义，因为线程池中队列的大小永远不可能达到`queueSizeRejectionThreshold`配置的数量
++ 不使用线程池的队列,直接将maxQueueSize配置设为 -1
++ `queueSizeRejectionThreshold`配置大于maxQueueSize也可以让线程池中线程的数量达到maximumSize数量,但是此时`queueSizeRejectionThreshold`配置并没有起到它应该承担的意义,因为线程池中队列的大小永远不可能达到`queueSizeRejectionThreshold`配置的数量
 
 ### 验证分析
 
@@ -113,11 +112,11 @@ hystrix.threadpool.default.queueSizeRejectionThreshold=1000
   hystrix.threadpool.default.maximumSize=10
   # 阻塞队列大小 默认值-1表示使用同步队列 
   hystrix.threadpool.default.maxQueueSize=-1
-  # 阻塞队列大小拒绝阈值 默认值为5 当maxQueueSize=-1时，不起作用
+  # 阻塞队列大小拒绝阈值 默认值为5 当maxQueueSize=-1时,不起作用
   hystrix.threadpool.default.queueSizeRejectionThreshold=5
-  # 释放线程时间 min为单位 默认为1min，当最大线程数大于核心线程数的时
+  # 释放线程时间 min为单位 默认为1min,当最大线程数大于核心线程数的时
   hystrix.threadpool.default.keepAliveTimeMinutes=1
-  # 是否允许maximumSize配置生效，默认值为false
+  # 是否允许maximumSize配置生效,默认值为false
   hystrix.threadpool.default.allowMaximumSizeToDivergeFromCoreSize=true
   ```
 
@@ -214,51 +213,51 @@ hystrix.threadpool.default.queueSizeRejectionThreshold=1000
   }
   ```
 
-  1. 测试数据：`coreSize`=5, `maxQueueSize`=-1，`maximumSize`=10，`queueSizeRejectionThreshold `=100
+  1. 测试数据：`coreSize=5, maxQueueSize=-1, maximumSize=10,queueSizeRejectionThreshold=100`
 
      ![image-20200715145014418](https://img.goldpumpkin.life/o/image-20200715145014418.png)
 
      结果显示：
 
-     第11个任务并发的时候，hytrix拒绝执行任务，因此，`maxQueueSize`为-1，`maximumSize` - 生效，`queueSizeRejectionThreshold `- 不生效
+     第11个任务并发的时候,hytrix拒绝执行任务,因此,maxQueueSize为-1,maximumSize - 生效,queueSizeRejectionThreshold- 不生效
 
-  2. 测试数据 `coreSize`=5, `maxQueueSize`=5，`maximumSize`=10，`queueSizeRejectionThreshold `=5
+  2. 测试数据 `coreSize=5, maxQueueSize=5, maximumSize=10, queueSizeRejectionThreshold=5`
 
      ![image-20200715152012583](https://img.goldpumpkin.life/o/image-20200715152012583.png)
 
-     结果显示：在第11个任务并发的时候，hytrix会拒绝执行任务，因此`maxQueueSize` >  0并且`maxQueueSize`=`queueSizeRejectionThreshold `时，
+     结果显示：在第11个任务并发的时候,hytrix会拒绝执行任务,因此maxQueueSize >  0并且maxQueueSize=queueSizeRejectionThreshold时,
 
-     `maximumSize` - 不生效，`queueSizeRejectionThreshold ` - 生效
+     maximumSize - 不生效,queueSizeRejectionThreshold - 生效
 
-  3. 测试数据 `coreSize`=5, `maxQueueSize`=5，`maximumSize`=10，`queueSizeRejectionThreshold `=3
+  3. 测试数据 `coreSize=5, maxQueueSize=5, maximumSize=10, queueSizeRejectionThreshold=3`
 
      ![image-20200715152153437](https://img.goldpumpkin.life/o/image-20200715152153437.png)
 
-     结果显示：在第9个任务并发的时候，hytrix会拒绝任务，因此，`maxQueueSize` >  0并且`maxQueueSize`>`queueSizeRejectionThreshold `时，
+     结果显示：在第9个任务并发的时候, hytrix 会拒绝任务,因此, `maxQueueSize > 0` 并且 `maxQueueSize>queueSizeRejectionThreshold` 时,
 
-     `maximumSize` - 不生效，`queueSizeRejectionThreshold ` - 生效
+     maximumSize - 不生效,queueSizeRejectionThreshold - 生效
 
-  4. 测试数据 `coreSize`=5, `maxQueueSize`=5，`maximumSize`=10，`queueSizeRejectionThreshold `=20
+  4. 测试数据 `coreSize=5, maxQueueSize=5, maximumSize=10, queueSizeRejectionThreshold=20`
 
      ![image-20200715170229628](https://img.goldpumpkin.life/o/image-20200715170229628.png)
 
-     结果显示：在第16个任务并发的时候，hytrix会拒绝任务，因此，`maxQueueSize` >  0并且`maxQueueSize`<`queueSizeRejectionThreshold `时，
+     结果显示：在第16个任务并发的时候, hytrix 会拒绝任务,因此, `maxQueueSize > 0` 并且 `maxQueueSize<queueSizeRejectionThreshold` 时,
 
-     `maximumSize` - 生效，`queueSizeRejectionThreshold ` - 生效（像摆设，它永远比maximumSize大）
+     maximumSize - 生效,queueSizeRejectionThreshold - 生效（像摆设,它永远比maximumSize大）
 
 ### 结论
 
-理解此hytrix的线程池配置的关键点，是在于搞清楚hytrix是否把任务交给线程池的逻辑部分，即`HystrixThreadPool`类中的`isQueueSpaceAvailable`方法，还有理清楚jdk的线程池的任务执行原理。基于提出的问题，做以下总结：
+理解此hytrix的线程池配置的关键点,是在于搞清楚hytrix是否把任务交给线程池的逻辑部分,即`HystrixThreadPool`类中的`isQueueSpaceAvailable`方法,还有理清楚jdk的线程池的任务执行原理。基于提出的问题,做以下总结：
 
-`maximumSize` 配置是否生效取决于 `maxQueueSize` 和 `queueSizeRejectionThreshold ` 这两个配置
+maximumSize 配置是否生效取决于 maxQueueSize 和 queueSizeRejectionThreshold 这两个配置
 
-+ `maxQueueSize` = -1， hytrix不使用同步队列，从而`queueSizeRejectionThreshold `也没用，`maximumSize`是生效的
++ `maxQueueSize = -1`, hytrix不使用同步队列,从而queueSizeRejectionThreshold也没用, maximumSize是生效的
 
-+ `maxQueueSize` >=0 
++ `maxQueueSize >=0`
 
-  + `maxQueueSize` < `queueSizeRejectionThreshold `, `maximumSize`生效
+  + `maxQueueSize < queueSizeRejectionThreshold`, maximumSize生效
 
-  + `maxQueueSize`>= `queueSizeRejectionThreshold `，`maximumSize`失效
+  + `maxQueueSize >= queueSizeRejectionThreshold`, maximumSize失效
 
     
 

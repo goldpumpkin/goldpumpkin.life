@@ -2,6 +2,9 @@ import React from 'react'
 import getPostMetadata from "@/lib/getPostMetadata";
 import getPostContent from "@/lib/getPostContent";
 import CustomMDX from "@/components/CustomMDX";
+import {mdxToHtml, POSTS_PATH} from "@/lib/mdx";
+import {MDXRemote} from 'next-mdx-remote/rsc'
+import CustomRemoteMDX from "@/components/CustomRemoteMDX";
 
 export const dynamicParams = false;
 
@@ -17,19 +20,22 @@ export async function generateMetadata( params: any, searchParams: any) {
     }
 }
 
-export default function Blog(props: any) {
-
+export default async function Blog(props: any) {
     const slug = props.params.slug;
     const decodeSlug = decodeURI(slug);
-    const post = getPostContent(decodeSlug)
-    const title = post.data.title;
+    const {data, content} = getPostContent(decodeSlug);
+    // const html = await mdxToHtml(content);
+    // const {compiledSource}: any = html;
+    // console.log(compiledSource);
+    const title = data.title;
     return (
             <article className = "flex flex-col items-start justify-center w-full">
                 <h1 className="font-extrabold text-2xl tracking-tight mb-0">
                     {title}
                 </h1>
                 <div className = "w-full prose dark:prose-invert max-w-none mb-30">
-                    <CustomMDX content={post.content} />
+                    {/*<CustomMDX content={data.content} />*/}
+                    <CustomRemoteMDX source={content} />
                 </div>
             </article>
     )
