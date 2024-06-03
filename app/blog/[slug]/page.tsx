@@ -33,7 +33,7 @@ export default async function Blog(props: any) {
                 <h1 className="font-extrabold text-2xl tracking-tight mb-0">
                     {title}
                 </h1>
-                <div className = "w-full prose dark:prose-invert max-w-none mb-30">
+                <div className = "w-full prose dark:prose-invert max-w-none mb-8">
                     {/*<CustomMDX content={data.content} />*/}
                     <CustomRemoteMDX source={content} />
                 </div>

@@ -12,11 +12,12 @@ import {serialize} from "next-mdx-remote/serialize";
 import CustomLink from "@/components/custommdx/CustomLink";
 import CustomImg from "@/components/custommdx/CustomImage";
 import {RichArticlePreBlock} from "@/components/custommdx/RichArticlePreBlock";
+import CustomPre from "@/components/custommdx/CustomPre";
 
 
 const MDXComponent : any = {
     a: CustomLink,
-    pre: RichArticlePreBlock,
+    pre: CustomPre,
     img: CustomImg,
 };
 
@@ -26,13 +27,12 @@ export default function CustomRemoteMDX(
     return (
         <MDXRemote
             {...props}
-            components= {MDXComponent}
+            // components= {MDXComponent}
+            components={{ ...MDXComponent, ...(props.components || {}) }}
             options={{
                 mdxOptions: {
-                    remarkPlugins: [remarkMath, remarkGfm],
+                    remarkPlugins: [remarkGfm],
                     rehypePlugins: [
-                        //@ts-ignore
-                        rehypeKatex,
                         rehypeSlug,
                         [
                             //@ts-ignore
