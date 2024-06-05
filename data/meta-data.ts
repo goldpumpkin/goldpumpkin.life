@@ -4,8 +4,8 @@ const HeaderNavLinks = [
     href: "/",
   },
   {
-    title: "Blog",
-    href: "/blog",
+    title: "About",
+    href: "/about",
   }
 ];
 
@@ -23,4 +23,8 @@ const HomePage = {
   url: "https://goldpumpkin.life",
 };
 
-export { HeaderNavLinks, HomePage};
+const AboutPage = {
+  metadata: { title: "About", description: "That is all about me." },
+};
+
+export { HeaderNavLinks, HomePage, AboutPage};

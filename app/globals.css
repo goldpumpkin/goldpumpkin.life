@@ -2,6 +2,12 @@
 @tailwind components;
 @tailwind utilities;
 
+@layer base {
+  body {
+    @apply dark:bg-dark-main bg-blue-50
+  }
+}
+
 .prose .anchor {
   @apply absolute invisible no-underline;
   margin-left: -1em;

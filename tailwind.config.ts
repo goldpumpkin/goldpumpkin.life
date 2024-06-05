@@ -1,4 +1,7 @@
 /** @type {import('tailwindcss').Config} */
+
+import {blue} from "kleur/colors";
+
 module.exports = {
   darkMode: "class",
   content: [
@@ -11,6 +14,10 @@ module.exports = {
       colors: {
         white: "#fff",
         black: "#000",
+        'my-blue': "#364158",
+      },
+      backgroundColor : {
+        'dark-main': "#2C3040",
       },
       typography: (theme: any) => ({
         DEFAULT: {
