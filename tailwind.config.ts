@@ -15,6 +15,7 @@ module.exports = {
         white: "#fff",
         black: "#000",
         'my-blue': "#364158",
+        'my-deep-blue': "#313B4F",
       },
       backgroundColor : {
         'dark-main': "#2C3040",
