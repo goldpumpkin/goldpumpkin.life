@@ -59,7 +59,7 @@ SPY 旨在跟踪标普 500 指数(SPX)的市场表现，本质也就是跟踪标
 
 ### ETF 期权 & 指数(Index)期权
 
-如果还不了解期权，可以先阅读下 [期权(Option) 是什么？](https://goldpumpkin.life/posts/2024/01/期权option-是什么/)。
+如果还不了解期权，可以先阅读下 [期权(Option) 是什么？](https://goldpumpkin.life/blog/what-is-option/)。
 
 ETF 期权，即底层标的是 ETF 的期权，买卖双方最终交割的资产就是 ETF 股票，和个股期权的交易方式一样。同样地，指数期权，即底层标的是指数(eg. NDX/SPX)的期权，但是它具有一些不同于个股期权的特点。
 
