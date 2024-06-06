@@ -2,6 +2,7 @@ import React from 'react'
 import getPostMetadata from "@/lib/getPostMetadata";
 import getPostContent from "@/lib/getPostContent";
 import CustomRemoteMDX from "@/components/CustomRemoteMDX";
+import Comment from "@/components/Comment";
 
 export const dynamicParams = false;
 
@@ -23,6 +24,7 @@ export default async function Blog(props: any) {
                 <div className = "w-full prose dark:prose-invert max-w-none mb-8">
                     <CustomRemoteMDX source={content} />
                 </div>
+                <Comment />
             </article>
     )
 }

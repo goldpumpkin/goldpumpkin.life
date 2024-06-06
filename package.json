@@ -13,6 +13,7 @@
     "pages:build": "npx @cloudflare/next-on-pages"
   },
   "dependencies": {
+    "@giscus/react": "^3.0.0",
     "@tailwindcss/typography": "^0.5.13",
     "gray-matter": "^4.0.3",
     "next": "14.2.3",
