@@ -16,10 +16,10 @@ const HomePage = {
       default: "Gold's Blog",
       template: `%s | Gold's Blog`,
     },
-    description: "A full-stack developer.",
+    description: "A full-stack developer.记录生活，记录想法，带不走。",
   },
   title: "Gold",
-  description: "A full-stack developer.",
+  description: "A full-stack developer.记录生活，记录想法，带不走。",
   url: "https://goldpumpkin.life",
 };
 
