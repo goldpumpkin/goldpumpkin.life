@@ -11,6 +11,17 @@ const Header: NextPage = () => {
 
     return (
         <header className="flex max-w-3xl container mx-auto px-6 py-4">
+            <script async src={`https://www.googletagmanager.com/gtag/js?id=${process.env.NEXT_PUBLIC_GA_ID}`}></script>
+            <script
+                dangerouslySetInnerHTML={{
+                    __html: `
+              window.dataLayer = window.dataLayer || [];
+              function gtag(){dataLayer.push(arguments);}
+              gtag('js', new Date());
+              gtag('config', '${process.env.NEXT_PUBLIC_GA_ID}');
+            `,
+                }}
+            />
             <nav className="flex w-full">
                 <ul className="flex flex-1 ml-[-0.5rem] justify-center space-x-4 md:justify-start md:space-x-0">
                     {HeaderNavLinks?.map((nav: any) => (
