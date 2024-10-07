@@ -1,0 +1,13 @@
+User-agent: *
+Disallow: /user/
+Disallow: /admin/
+Disallow: /api/
+Disallow: /site/
+Disallow: /*/site/
+Disallow: /whois/
+Disallow: /*/whois/
+Disallow: /traffic/
+Disallow: /*/traffic/
+
+Sitemap: https://goldpumpkin.life/sitemap.xml
+
