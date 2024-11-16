@@ -23,8 +23,6 @@ keywords: [
 description: "详细介绍如何在本地管理和配置多个 GitHub 账号，包括 SSH 密钥配置、Git 用户设置以及远程仓库管理的最佳实践。适合需要同时管理多个 GitHub 身份的开发者。"
 ---
 
-# 在本地管理多个 GitHub 账号：SSH 配置完全指南
-
 ## Key Takeaways
 
 - 不同的 Git 用户配置（user.name/email）决定代码提交者的身份
