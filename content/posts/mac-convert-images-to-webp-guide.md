@@ -1,10 +1,29 @@
 ---
-title: Mac中快速压缩图像为Webp格式
-tags : [
-    "Mac","Webp"
+title: "Mac中快速压缩图像为Webp格式"
+url: "mac-convert-images-to-webp-guide"
+date: "2025-02-12"
+tags: [
+    "Mac",
+    "WebP",
+    "图像处理",
+    "开发工具",
+    "自动化"
 ]
-date : "2025-02-12"
+categories: [
+    "开发工具",
+    "最佳实践"
+]
+keywords: [
+    "WebP转换",
+    "图片压缩",
+    "Mac工具",
+    "Automator",
+    "图像优化",
+    "开发环境配置"
+]
+description: "详细介绍如何在Mac系统中快速将图片转换为WebP格式，包括使用Homebrew安装工具、配置Automator快速操作以及设置快捷键等实用技巧。适合需要优化网站图片性能的开发者和设计师。"
 ---
+
 
 ## 为什么要将图片转化成为 WebP 格式？
 
