@@ -1,7 +1,7 @@
 ---
 title: "Cursor 编辑器自动保存功能配置指南"
 url: "cursor-editor-autosave-configuration-guide"
-date: "2024-02-22"
+date: "2025-02-22"
 tags: [
     "Cursor",
     "VS Code",
