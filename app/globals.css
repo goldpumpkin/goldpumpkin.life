@@ -4,8 +4,36 @@
 
 @layer base {
   body {
-    @apply dark:bg-dark-main bg-blue-50
+    @apply dark:bg-dark-main bg-white
   }
+
+  html {
+    scroll-behavior: smooth;
+  }
+}
+
+/* 标题锚点偏移（避免被固定头部遮挡） */
+.prose h2[id],
+.prose h3[id] {
+  scroll-margin-top: 80px;
+}
+
+/* TOC 滚动条美化 */
+.toc-nav::-webkit-scrollbar {
+  width: 4px;
+}
+
+.toc-nav::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.toc-nav::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 2px;
+}
+
+.dark .toc-nav::-webkit-scrollbar-thumb {
+  background: #475569;
 }
 
 .prose .anchor {

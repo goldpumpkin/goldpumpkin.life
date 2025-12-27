@@ -38,20 +38,29 @@ module.exports = {
             h1: {
               fontSize: theme("fontSize.2xl"),
               marginBottom: 0,
+              color: theme("colors.slate.900"),
             },
             h2: {
               fontWeight: theme("fontWeight.extrabold"),
               fontSize: theme("fontSize.xl"),
+              color: theme("colors.slate.900"),
             },
             h3: {
               fontWeight: theme("fontWeight.extrabold"),
               fontSize: theme("fontSize.lg"),
+              color: theme("colors.slate.800"),
             },
             hr: {
               marginTop: "2rem",
               marginBottom: "2rem",
             },
             p: {
+              color: theme("colors.slate.600"),
+            },
+            li: {
+              color: theme("colors.slate.600"),
+            },
+            strong: {
               color: theme("colors.slate.800"),
             },
             img: {
@@ -96,8 +105,23 @@ module.exports = {
               code: { color: theme("colors.blue.400") },
             },
             code: { color: theme("colors.pink.400") },
+            h1: {
+              color: theme("colors.slate.50"),
+            },
+            h2: {
+              color: theme("colors.slate.50"),
+            },
+            h3: {
+              color: theme("colors.slate.100"),
+            },
             p: {
-              color: theme("colors.slate.200"),
+              color: theme("colors.slate.300"),
+            },
+            li: {
+              color: theme("colors.slate.300"),
+            },
+            strong: {
+              color: theme("colors.slate.100"),
             },
             blockquote: {
               p: {
