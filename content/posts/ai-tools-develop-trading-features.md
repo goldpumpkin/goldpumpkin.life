@@ -1,7 +1,7 @@
 ---
 title: 用 AI 工具链给网站做功能，踩了一些坑，也有一些感悟
 url: "ai-tools-develop-trading-features"
-date: "2025-01-04"
+date: "2026-01-04"
 tags: [
     "AI",
     "Claude Code",
