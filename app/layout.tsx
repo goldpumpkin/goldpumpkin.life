@@ -30,9 +30,10 @@ export default function RootLayout({children,}: Readonly<{ children: React.React
         </Providers>
         {process.env.NODE_ENV === "production" && (
             <Script
-                async
+                defer
                 src={process.env.UMAMI_SCRIPT_URL}
                 data-website-id={process.env.UMAMI_DATA_WEBSITE_ID}
+                strategy="afterInteractive"
             />
         )}
         </body>
